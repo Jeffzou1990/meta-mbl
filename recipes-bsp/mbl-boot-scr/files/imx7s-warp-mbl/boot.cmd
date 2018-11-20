@@ -17,5 +17,6 @@ fdt apply ${fdtovaddr}
 echo Booting secure Linux from FIT ...;
 bootm ${bootscriptaddr}:kernel@1 ${bootscriptaddr}:ramdisk@1 ${fdt_addr}
 
+
 # Failsafe if something goes wrong
 hab_failsafe
