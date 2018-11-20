@@ -13,12 +13,9 @@ FILESEXTRAPATHS_append := "${THISDIR}/files:"
 
 SRC_URI = "file://boot.cmd"
 
-SRC_URI_append := " file://boot.its"
-
-do_compile[depends] += "virtual/kernel:do_deploy"
+SRC_URI_append_imx7s-warp := " file://boot.its"
 
 do_compile() {
-    uboot-mkimage -A arm -T script -C none -n "Boot script" -d "${WORKDIR}/boot.cmd" boot.scr
 }
 
 do_compile_append_imx7s-warp() {
@@ -34,19 +31,13 @@ do_compile_append_imx7s-warp() {
 do_compile_append_raspberrypi3-mbl() {
     openssl genrsa -out ${DEPLOY_DIR_IMAGE}/mblkey.key 2048
     openssl req -batch -new -x509 -key ${DEPLOY_DIR_IMAGE}/mblkey.key -out ${DEPLOY_DIR_IMAGE}/mblkey.crt
-    ln -sf ${DEPLOY_DIR_IMAGE}/mblkey.key mblkey.key
-    ln -sf ${DEPLOY_DIR_IMAGE}/mblkey.crt mblkey.crt
-    ln -sf ${DEPLOY_DIR_IMAGE}/zImage ${WORKDIR}/zImage
-    ln -sf ${DEPLOY_DIR_IMAGE}/bcm2710-rpi-3-b-plus.dtb ${WORKDIR}/bcm2710-rpi-3-b-plus.dtb
-    ln -sf ${DEPLOY_DIR_IMAGE}/mbl-console-image-initramfs-raspberrypi3-mbl.cpio.gz ${WORKDIR}/mbl-console-image-initramfs-raspberrypi3-mbl.cpio.gz
-    uboot-mkimage -f ${WORKDIR}/boot.its -k ${B} boot.scr
 }
 
 inherit deploy
 
 do_deploy() {
     install -d ${DEPLOYDIR}
-    install -m 0644 boot.scr ${DEPLOYDIR}
+    install -m 0644 ${WORKDIR}/boot.cmd ${DEPLOYDIR}
 }
 
 addtask do_deploy after do_compile before do_build

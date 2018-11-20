@@ -16,13 +16,6 @@ SRC_URI_append_raspberrypi3-mbl = " file://0100-rpi3-Change-u-boot-loading-addre
 
 do_compile[depends] += "mbl-boot-scr:do_compile"
 do_compile_append_rpi() {
-	ln -f -s ${WORKDIR}/dummy.its ${B}/dummy.its
-	ln -f -s ${DEPLOY_DIR_IMAGE}/mblkey.key ${B}/mblkey.key
-	ln -f -s ${DEPLOY_DIR_IMAGE}/mblkey.crt ${B}/mblkey.crt
-	uboot-mkimage -f dummy.its -k ${B} -K ${B}/dts/dt.dtb -r ${B}/dummy.itb
-	# override u-boot.bin with dtb that containing the pub key
-	cat ${B}/u-boot-nodtb.bin > ${B}/u-boot.bin
-	cat ${B}/dts/dt.dtb >> ${B}/u-boot.bin
 }
 
 do_deploy_append_rpi() {
