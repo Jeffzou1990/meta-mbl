@@ -38,7 +38,7 @@ PLATFORM = "rpi3"
 # This problem is avoided by clearing LDFLAGS.
 LDFLAGS[unexport] = "1"
 
-do_compile[depends] += "virtual/bootloader:do_deploy"
+do_compile[depends] += "virtual/bootloader:do_install"
 do_compile() {
     export PATH=${STAGING_DIR_NATIVE}${bindir}/aarch64-linux-gnu/bin:$PATH
     # Due to LDFLAGS is unexported to solve the build fail, we need to
@@ -68,7 +68,7 @@ do_compile() {
         BUILD_PLAT=${B}/${PLATFORM}/ \
         PLAT=${PLATFORM} \
         RPI3_BL33_IN_AARCH32=1 \
-        BL33=${DEPLOY_DIR_IMAGE}/u-boot.bin \
+        BL33=${DEPLOY_DIR_IMAGE}/${UBOOT_IMAGE} \
         NEED_BL32=yes \
         BL32=${DEPLOY_DIR_IMAGE}/optee/tee-header_v2.bin \
         BL32_EXTRA1=${DEPLOY_DIR_IMAGE}/optee/tee-pager_v2.bin \
