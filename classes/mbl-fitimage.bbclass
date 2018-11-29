@@ -1,4 +1,37 @@
+# Copyright (c) 2018 Arm Limited and Contributors. All rights reserved.
+#
+# SPDX-License-Identifier: MIT
+
+# mbl-fitimage.bbclass
+#  This bitbake class derives from the parent kernel-fitimage classes to 
+#  implement modified behavior. This includes:
+#    - Adding a bootscr section to the FIT image ITS specification file. 
+#
+
 inherit kernel-fitimage mbl-artifact-names
+
+# Default symbol values are specified here at file scope
+# 
+# UBOOT_SIGN_ENABLE
+#   This is used to enable u-boot verified boot. See uboot-sign.bbclass for more 
+#   information.
+# 
+# UBOOT_SIGN_KEYDIR
+#   The directory containing the keys for signing.
+# 
+# UBOOT_SIGN_KEYNAME
+#   The the name of the key to use for signing.
+
+UBOOT_SIGN_ENABLE = "1"
+UBOOT_SIGN_KEYDIR = "${MBL_KEYSTORE_DIR}"
+UBOOT_SIGN_KEYNAME = "${MBL_FIT_ROT_KEY_FILENAME}"
+
+# Recipes that use this class are required to have the mbl-boot-scr
+# recipe make the ${DEPLOY_DIR_IMAGE}/${MBL_UBOOT_CMD_FILENAME} available for use.
+# ${MBL_UBOOT_CMD_FILENAME} is referenced in the ITS file and used to build
+# the FIT image. 
+DEPENDS += " mbl-boot-scr"
+do_install[depends] += "mbl-boot-scr:do_deploy"
 
 #
 # Emit the fitImage ITS U-boot boot script section
@@ -32,6 +65,7 @@ EOF
 # $4 ... ramdisk ID
 # $5 ... config ID
 # $6 ... default flag
+# $7 ... flag to include the bootscr section
 fitimage_emit_section_config() {
 
 	conf_csum="sha1"
@@ -76,7 +110,10 @@ fitimage_emit_section_config() {
 		default_line="default = \"conf@${3}\";"
 	fi
 
-	loadables_line="loadables = \"bootscr\";"
+	if [ "${7}" = "1" ]; then
+		loadables_line="loadables = \"bootscr\";"
+	fi
+
 	cat << EOF >> ${1}
                 ${default_line}
                 conf@${3} {
@@ -144,6 +181,7 @@ fitimage_assemble() {
 	DTBS=""
 	ramdiskcount=${3}
 	setupcount=""
+	bootscrcount=""
 	rm -f ${1} arch/${ARCH}/boot/${2}
 
 	fitimage_emit_fit_header ${1}
@@ -204,10 +242,11 @@ fitimage_assemble() {
 	# Step 5: Prepare a boot script for u-boot.
 	#
 	if [ -n "${MBL_UBOOT_CMD_FILENAME}" ]; then
+        bootscrcount=1
 		ln -snf "${DEPLOY_DIR_IMAGE}/${MBL_UBOOT_CMD_FILENAME}" ${MBL_UBOOT_CMD_FILENAME}
 		fitimage_emit_section_boot_script ${1} "${MBL_UBOOT_CMD_FILENAME}"
 	else
-		bberror 'Cannot find u-boot command file, boot.cmd in common case.'
+		bberror 'Cannot find u-boot command file, ${MBL_UBOOT_CMD_FILENAME} in common case.'
 	fi
 
 	fitimage_emit_section_maint ${1} sectend
@@ -228,9 +267,9 @@ fitimage_assemble() {
 		for DTB in ${DTBS}; do
 			dtb_ext=${DTB##*.}
 			if [ "${dtb_ext}" = "dtbo" ]; then
-				fitimage_emit_section_config ${1} "" "${DTB}" "" "" "`expr ${i} = ${dtbcount}`"
+				fitimage_emit_section_config ${1} "" "${DTB}" "" "" "`expr ${i} = ${dtbcount}`" "${bootscrcount}"
 			else
-				fitimage_emit_section_config ${1} "${kernelcount}" "${DTB}" "${ramdiskcount}" "${setupcount}" "`expr ${i} = ${dtbcount}`"
+				fitimage_emit_section_config ${1} "${kernelcount}" "${DTB}" "${ramdiskcount}" "${setupcount}" "`expr ${i} = ${dtbcount}`" "${bootscrcount}"
 			fi
 			i=`expr ${i} + 1`
 		done

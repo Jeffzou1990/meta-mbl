@@ -15,8 +15,6 @@ SRC_URI += "file://0001-rpi3-optee-update-DTS.patch \
 # 0x00020000 ~ 0x00200000. Thus we move kernel to another address.
 KERNEL_EXTRA_ARGS += " LOADADDR=0x04000000 "
 
-# make sure mblkey file is installed to sign fit image.
-do_install[depends] += "mbl-boot-scr:do_deploy"
 
 do_configure_prepend() { 
     ${S}/scripts/kconfig/merge_config.sh -m -O ${B} ${B}/.config ${WORKDIR}/*-mbl.cfg    
