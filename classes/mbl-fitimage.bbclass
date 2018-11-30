@@ -11,7 +11,8 @@
 inherit kernel-fitimage mbl-artifact-names
 
 # include u-boot definitions e.g. UBOOT_IMAGE default name
-require u-boot.inc
+#require recipes-bsp/u-boot/u-boot.inc
+
 
 # Default symbol values are specified here at file scope
 # 
@@ -28,6 +29,7 @@ require u-boot.inc
 UBOOT_SIGN_ENABLE = "1"
 UBOOT_SIGN_KEYDIR = "${MBL_KEYSTORE_DIR}"
 UBOOT_SIGN_KEYNAME = "${MBL_FIT_ROT_KEY_FILENAME}"
+UBOOT_IMAGE = "${MBL_UBOOT_BIN_FILENAME}"
 
 # Recipes that use this class are required to have the mbl-boot-scr
 # recipe make the ${DEPLOY_DIR_IMAGE}/${MBL_UBOOT_CMD_FILENAME} available for use.
@@ -35,6 +37,8 @@ UBOOT_SIGN_KEYNAME = "${MBL_FIT_ROT_KEY_FILENAME}"
 # the FIT image. 
 DEPENDS += " mbl-boot-scr"
 do_install[depends] += "mbl-boot-scr:do_deploy"
+#do_install[depends] += "u-boot:do_install"
+#do_install[depends] += "u-boot:do_deploy_dtb"
 
 #
 # Emit the fitImage ITS U-boot boot script section

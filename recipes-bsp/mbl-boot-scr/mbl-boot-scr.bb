@@ -30,10 +30,17 @@ do_compile_append_imx7s-warp() {
     uboot-mkimage -f "${WORKDIR}/boot.its" -k ${B} boot.scr
 }
 
+#do_compile_append_raspberrypi3-mbl() {
+#    if [ ! -e "${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key" ]; then
+#        openssl genrsa -out ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key 2048
+#        openssl req -batch -new -x509 -key ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key -out ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.crt
+#    fi
+#}
+
 do_compile_append_raspberrypi3-mbl() {
     if [ ! -e "${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key" ]; then
-        openssl genrsa -out ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key 2048
-        openssl req -batch -new -x509 -key ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key -out ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.crt
+        openssl genrsa -out ${MBL_FIT_ROT_KEY_FILENAME}.key 2048
+        openssl req -batch -new -x509 -key ${MBL_FIT_ROT_KEY_FILENAME}.key -out ${MBL_FIT_ROT_KEY_FILENAME}.crt
     fi
 }
 
@@ -42,6 +49,8 @@ inherit deploy
 do_deploy() {
     install -d ${DEPLOYDIR}
     install -m 0644 ${WORKDIR}/${MBL_UBOOT_CMD_FILENAME} ${DEPLOYDIR}
+    install -m 0644 ${B}/${MBL_FIT_ROT_KEY_FILENAME}.key ${DEPLOYDIR}
+    install -m 0644 ${B}/${MBL_FIT_ROT_KEY_FILENAME}.crt ${DEPLOYDIR}
 }
 
 addtask do_deploy after do_compile before do_build

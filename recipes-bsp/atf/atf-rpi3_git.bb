@@ -7,7 +7,10 @@ DESCRIPTION = "ARM Trusted Firmware for RaspberryPi3"
 PROVIDES = "atf-rpi3"
 
 # Include u-boot definitions e.g. UBOOT_IMAGE
-require u-boot.inc 
+#require ../../../openembedded-core/meta/recipes-bsp/u-boot/u-boot.inc
+#require recipes-bsp/u-boot/u-boot.inc
+
+inherit mbl-fitimage
 
 # Licensing: 
 # - ARM Trusted Firmware is licensed under BSD-3-Clause.
@@ -71,7 +74,7 @@ do_compile() {
         BUILD_PLAT=${B}/${PLATFORM}/ \
         PLAT=${PLATFORM} \
         RPI3_BL33_IN_AARCH32=1 \
-        BL33=${DEPLOY_DIR_IMAGE}/${UBOOT_IMAGE} \
+        BL33=${DEPLOY_DIR_IMAGE}/${MBL_UBOOT_BIN_FILENAME} \
         NEED_BL32=yes \
         BL32=${DEPLOY_DIR_IMAGE}/optee/tee-header_v2.bin \
         BL32_EXTRA1=${DEPLOY_DIR_IMAGE}/optee/tee-pager_v2.bin \
