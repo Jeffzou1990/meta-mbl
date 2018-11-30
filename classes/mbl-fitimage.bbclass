@@ -10,6 +10,9 @@
 
 inherit kernel-fitimage mbl-artifact-names
 
+# include u-boot definitions e.g. UBOOT_IMAGE default name
+require u-boot.inc
+
 # Default symbol values are specified here at file scope
 # 
 # UBOOT_SIGN_ENABLE

@@ -6,6 +6,9 @@ DESCRIPTION = "ARM Trusted Firmware for RaspberryPi3"
 
 PROVIDES = "atf-rpi3"
 
+# Include u-boot definitions e.g. UBOOT_IMAGE
+require u-boot.inc 
+
 # Licensing: 
 # - ARM Trusted Firmware is licensed under BSD-3-Clause.
 # - mbedtls is licensed under Apache-2.0.
