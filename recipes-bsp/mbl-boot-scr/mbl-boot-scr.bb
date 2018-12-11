@@ -6,7 +6,7 @@ SUMMARY = "U-boot boot scripts for mbed Linux"
 HOMEPAGE = "https://github.com/ARMmbed/meta-mbl"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
-DEPENDS = " openssl-native"
+DEPENDS = " openssl-native u-boot-tools-native"
 RCONFLICTS_${PN} = "rpi-u-boot-scr"
 
 FILESEXTRAPATHS_append := "${THISDIR}/files:"
@@ -16,6 +16,10 @@ SRC_URI = "file://boot.cmd"
 inherit mbl-artifact-names
 
 do_compile() {
+}
+
+do_compile_append_imx7d-pico-mbl() {
+    mkimage -A arm -T script -C none -n "Boot script" -d "${WORKDIR}/boot.cmd" boot.scr
 }
 
 do_deploy_append() {
@@ -31,6 +35,11 @@ inherit deploy
 do_deploy() {
     install -d ${DEPLOYDIR}
     install -m 0644 ${WORKDIR}/${MBL_UBOOT_CMD_FILENAME} ${DEPLOYDIR}
+}
+
+do_deploy_append_imx7d-pico-mbl() {
+    install -d ${DEPLOYDIR}
+    install -m 0644 boot.scr ${DEPLOYDIR}
 }
 
 addtask do_deploy after do_compile before do_build
