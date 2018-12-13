@@ -2,27 +2,25 @@
 #
 # SPDX-License-Identifier: MIT
 
+###############################################################################
 # mbl-fitimage.bbclass
 #  This bitbake class derives from the parent kernel-fitimage classes to
 #  implement modified behavior. This includes:
 #    - Adding a bootscr section to the FIT image ITS specification file.
-#
+#    - Modifying fitimage_assemble to include a step to create the u-boot 
+#      boot script.
+###############################################################################
 
+###############################################################################
 # Default symbol values are specified here at file scope
-#
-# UBOOT_SIGN_ENABLE
-#   This is used to enable u-boot verified boot. See uboot-sign.bbclass for more
-#   information.
 #
 # UBOOT_SIGN_KEYDIR
 #   The directory containing the keys for signing.
 #
 # UBOOT_SIGN_KEYNAME
 #   The the name of the key to use for signing.
-
-
+###############################################################################
 UBOOT_ARCH = "arm"
-UBOOT_SIGN_ENABLE = "1"
 UBOOT_SIGN_KEYDIR = "${MBL_KEYSTORE_DIR}"
 UBOOT_SIGN_KEYNAME = "${MBL_FIT_ROT_KEY_FILENAME}"
 
