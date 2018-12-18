@@ -10,19 +10,15 @@ SRC_URI = "git://git.linaro.org/landing-teams/working/mbl/arm-trusted-firmware.g
 SRCREV_atf = "8a9f3e55ce939f1b2646e044de5eb804437f057f"
 
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM = " \
-                    file://license.rst;md5=e927e02bca647e14efd87e9e914b2443 \
-		"
+LIC_FILES_CHKSUM = "file://license.rst;md5=e927e02bca647e14efd87e9e914b2443"
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 
-inherit deploy
+#inherit deploy
 
-# To make sure boot.scr is deploy before do_image_wic because do_image_wic depends on atf.
-# We can remove this line after atf is ready with dependency written in atf.inc.
-do_deploy[depends] += "mbl-boot-scr:do_deploy"
-
+# mbl-console-image.bb has do_image_wic[depends] = "virtua/atf:do_deploy".
+# This requires that the following (empt)y do_deploy() is present.
 do_deploy() {
 }
 
