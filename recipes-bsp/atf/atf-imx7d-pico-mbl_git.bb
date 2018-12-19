@@ -25,4 +25,4 @@ inherit deploy
 do_deploy() {
 }
 
-addtask deploy before do_compile
+addtask deploy after do_compile
