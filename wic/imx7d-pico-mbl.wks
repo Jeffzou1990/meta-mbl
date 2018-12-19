@@ -13,11 +13,7 @@
 #
 # Note 2: the labels are important - fstab uses them and so does activate_script.
 
-# Create an image that can be written onto a SD card using dd for use
-# with i.MX SoC family.
-# It uses SPL and u-boot
-#
-# Partition 0: Raw copy of SPL and U-boot binary.
+# Raw copy of SPL and U-boot binary.
 part SPL --source rawcopy --sourceparams="file=SPL" --no-table --align 1
 part u-boot --source rawcopy --sourceparams="file=u-boot.img" --no-table --align 69
 

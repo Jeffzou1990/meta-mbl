@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Specify a kernel image containing mbl-console-image-initramfs (do not use the default uImage)
-echo "Setting image enviroment variable ..."
 setenv image uImage-initramfs-imx7d-pico-mbl.bin
 
 setenv kernel_addr_r 0x88000000

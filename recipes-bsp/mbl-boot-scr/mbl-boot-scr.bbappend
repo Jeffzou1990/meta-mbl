@@ -15,7 +15,8 @@ do_compile_append_imx7d-pico-mbl() {
 
 
 do_deploy_append_imx7d-pico-mbl() {
-    install -d ${DEPLOYDIR}
+    # It's unnecessary to create the DEPLOYDIR before installing to it because is created
+    # automatically as part of deploy.bbclass processing (do_deploy[dirs] = "S{DEPLOYDIR} ${B}")
     install -m 0644 boot.scr ${DEPLOYDIR}
 }
 
