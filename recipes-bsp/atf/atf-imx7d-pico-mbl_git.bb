@@ -15,9 +15,9 @@ LIC_FILES_CHKSUM = "file://license.rst;md5=e927e02bca647e14efd87e9e914b2443"
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build"
 
-#inherit deploy
+inherit deploy
 
-# mbl-console-image.bb has do_image_wic[depends] = "virtua/atf:do_deploy".
+# mbl-console-image.bb has do_image_wic[depends] = "virtual/atf:do_deploy".
 # This requires that the following (empt)y do_deploy() is present.
 do_deploy() {
 }

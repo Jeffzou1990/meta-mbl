@@ -6,7 +6,6 @@ SUMMARY = "U-boot boot scripts for mbed Linux"
 HOMEPAGE = "https://github.com/ARMmbed/meta-mbl"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/Apache-2.0;md5=89aea4e17d99a7cacdbeed46a0096b10"
-#DEPENDS = " openssl-native u-boot-tools-native"
 DEPENDS = " openssl-native"
 RCONFLICTS_${PN} = "rpi-u-boot-scr"
 

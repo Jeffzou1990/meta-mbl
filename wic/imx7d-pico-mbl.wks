@@ -17,17 +17,9 @@
 # with i.MX SoC family.
 # It uses SPL and u-boot
 #
-# The disk layout used is:
-#  - ----- --------- --------------
-# | | SPL | u-boot  |    rootfs    |
-#  - ----- --------- --------------
-# ^ ^     ^         ^              ^
-# | |     |         |              |
-# 0 1kiB  69kiB   4MiB + rootfs + IMAGE_EXTRA_SPACE (default 10MiB)
-#
-# Partition 0: Raw copy of U-boot binary.
-part SPL --source rawcopy --sourceparams="file=SPL" --ondisk mmcblk --no-table --align 1
-part u-boot --source rawcopy --sourceparams="file=u-boot.img" --ondisk mmcblk --no-table --align 69
+# Partition 0: Raw copy of SPL and U-boot binary.
+part SPL --source rawcopy --sourceparams="file=SPL" --no-table --align 1
+part u-boot --source rawcopy --sourceparams="file=u-boot.img" --no-table --align 69
 
 # Partition 1: Boot partition
 part --source bootimg-partition --fstype=vfat --label boot --active --align 4096 --fixed-size 32
