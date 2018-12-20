@@ -31,6 +31,12 @@ inherit kernel-fitimage mbl-artifact-names
 # ${MBL_UBOOT_CMD_FILENAME} is referenced in the ITS file and used to build
 # the FIT image.
 DEPENDS += " mbl-boot-scr"
+
+# This class uses openssl to generate a certificate for signing the FIT image.  
+DEPENDS = " openssl-native"
+
+# This class depends on the MACHINE specific u-boot boot.cmd which is copied
+# to the DEPLOYDIR for use by mbl-boot-scr.bb.  
 do_compile[depends] += "mbl-boot-scr:do_deploy"
 
 #
@@ -303,13 +309,51 @@ fitimage_assemble() {
 	fi
 }
 
+###############################################################################
+# FUNCTION: kernel_do_compile_append()
+#
+# This function hooks kernel.bbclass do_compile() to manage the FIT signing 
+# key:
+# - Use a developer private key if one has been provided. The key 
+#   is expected to be in the ${MBL_KEYSTORE_DIR} directory with the name
+#   ${MBL_FIT_ROT_KEY_FILENAME}.key 
+# - If not, generate a signing key to use.
+# - Store the key in the DEPLOYDIR for reference. It is assumed it has 
+#   a unique name.
+###############################################################################
+kernel_do_compile_append() {
+    
+    if [ -e "${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key" ]; then
+        # Use the FIT signing key specified by the developer.
+        cp ${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key ${B}
+        ln -snf "${MBL_KEYSTORE_DIR}/${MBL_FIT_ROT_KEY_FILENAME}.key" ${MBL_FIT_ROT_KEY_FILENAME}.key
+
+    elif [ -e "${DEPLOY_DIR_IMAGE}/${MBL_FIT_ROT_KEY_FILENAME}.key" ]; then
+        # Use the FIT signing key previously use for a build, as part of a rebuild operation.
+        ln -snf "${DEPLOY_DIR_IMAGE}/${MBL_FIT_ROT_KEY_FILENAME}.key" ${MBL_FIT_ROT_KEY_FILENAME}.key
+
+    else
+        # No FIT signing key has been specifies so create the key.
+        openssl genrsa -out ${MBL_FIT_ROT_KEY_FILENAME}.key 2048
+    fi
+    
+    # Create a certificate associated with the key.
+    openssl req -batch -new -x509 -key ${MBL_FIT_ROT_KEY_FILENAME}.key -out ${MBL_FIT_ROT_KEY_FILENAME}.crt
+}
 
 kernel_do_deploy[vardepsexclude] = "DATETIME"
 kernel_do_deploy_append() {
+
+	# Copy the fitImage to the DEPLOYDIR for later use by WIC
 	install -d ${DEPLOYDIR}/mbl-bootfiles
 	if echo ${KERNEL_IMAGETYPES} | grep -wq "fitImage"; then
 		if [ -n "${INITRAMFS_IMAGE}" ]; then
 			install -m 0644 ${B}/arch/${ARCH}/boot/fitImage-${INITRAMFS_IMAGE} ${DEPLOYDIR}/mbl-bootfiles/${MBL_FIT_BIN_FILENAME}
 		fi
 	fi
+	
+	# Copy the FIT signing key and certificate to the DEPLOYDIR for future reference or use
+    install -m 0644 ${MBL_FIT_ROT_KEY_FILENAME}.key ${DEPLOYDIR}
+    install -m 0644 ${MBL_FIT_ROT_KEY_FILENAME}.crt ${DEPLOYDIR}
+	
 }
