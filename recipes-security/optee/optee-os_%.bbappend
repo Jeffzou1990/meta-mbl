@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 DEPENDS += " u-boot-tools-native "
-DEPENDS_append_raspberrypi3-mbl = " linaro-aarch64-toolchain-native "
+DEPENDS_append_raspberrypi3-mbl = " arm-aarch64-toolchain-native "
 
 SRCREV="644e5420ae01992e59c29f1417c9fd8445fab521"
 SRCREV_imx7d-pico-mbl="89af39033471cb21ed4db18f491ffb77e30e2a68"
