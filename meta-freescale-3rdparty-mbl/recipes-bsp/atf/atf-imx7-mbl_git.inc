@@ -4,6 +4,8 @@
 
 DEPENDS += "u-boot-tools-native"
 
+# MBL_ATF_VERSION should be updated to match version pointed to by SRCREV
+MBL_ATF_VERSION ?= "2.0"
 SRCREV_atf = "6a80c8bbc961ab55a562e0030247419e363286f7"
 
 inherit mbl-artifact-names
