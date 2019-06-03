@@ -8,7 +8,7 @@ SRC_URI = "git://git.linaro.org/landing-teams/working/mbl/u-boot.git;protocol=ht
 "
 
 # MBL_UBOOT_VERSION should be updated to match version pointed to by SRCREV
-MBL_UBOOT_VERSION="2018.03"
+MBL_UBOOT_VERSION = "2018.03"
 
 SRCREV = "336522718c23e6adb1fe206fc0beab4465d5ecda"
 
