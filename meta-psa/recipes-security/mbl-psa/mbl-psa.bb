@@ -14,8 +14,8 @@ LIC_FILES_CHKSUM = " \
     file://${WORKDIR}/git/apache-2.0.txt;md5=3b83ef96387f14655fc854ddc3c6bd57 \
     "
 
-SRC_URI = "git://git@github.com/simonqhughes/mbed-psa.git;protocol=ssh;nobranch=1"
-SRCREV = "69b06e733079c106ce1bfac0c366b957b78535b7"
+SRC_URI = "git://git@github.com/armmbed/mbl-psa.git;protocol=ssh;nobranch=1"
+SRCREV = "9e665fdbced1d20667332534c42ed82106611d6b"
 
 PV = "1.0.0+git${SRCPV}"
 S = "${WORKDIR}/git"
