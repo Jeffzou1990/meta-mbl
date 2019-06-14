@@ -84,3 +84,7 @@ do_install_append() {
         install -m644 -D ${B}/tests/${data_file} ${D}${TEST_INSTALL_DIR}/${data_file}
     done
 }
+
+do_rm_work() {
+	echo "do nothing"
+}
