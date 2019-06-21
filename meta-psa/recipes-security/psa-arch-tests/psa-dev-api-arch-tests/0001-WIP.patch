@@ -1,0 +1,4564 @@
+From 92c908a4c9dbadfc70de4e29e0b9a19b6746ffbc Mon Sep 17 00:00:00 2001
+From: Jonathan Haigh <jonathan.haigh@arm.com>
+Date: Thu, 6 Jun 2019 16:14:05 +0100
+Subject: [PATCH] WIP
+
+---
+ api-tests/platform/targets/linux/Makefile          | 160 +++++++
+ .../manifests/common/driver_partition_psa.json     |  75 ++++
+ .../linux/manifests/ipc/client_partition_psa.json  |  37 ++
+ .../linux/manifests/ipc/server_partition_psa.json  |  69 +++
+ .../linux/nspe/common/pal_client_api_empty_intf.c  |  93 ++++
+ .../linux/nspe/common/pal_client_api_intf.c        |  97 ++++
+ .../linux/nspe/common/pal_client_api_intf.h        |  32 ++
+ .../targets/linux/nspe/common/pal_common.h         | 118 +++++
+ .../targets/linux/nspe/common/pal_config.h         | 119 +++++
+ .../linux/nspe/common/pal_driver_ipc_intf.c        | 305 +++++++++++++
+ .../targets/linux/nspe/common/pal_driver_ns_intf.c | 180 ++++++++
+ .../targets/linux/nspe/crypto/pal_crypto_config.h  | 323 ++++++++++++++
+ .../linux/nspe/crypto/pal_crypto_config_check.h    | 223 ++++++++++
+ .../linux/nspe/crypto/pal_crypto_empty_intf.c      |  30 ++
+ .../targets/linux/nspe/crypto/pal_crypto_intf.c    | 340 ++++++++++++++
+ .../targets/linux/nspe/crypto/pal_crypto_intf.h    |  76 ++++
+ .../initial_attestation/pal_attestation_crypto.c   | 346 +++++++++++++++
+ .../initial_attestation/pal_attestation_crypto.h   | 102 +++++
+ .../nspe/initial_attestation/pal_attestation_eat.c | 491 +++++++++++++++++++++
+ .../nspe/initial_attestation/pal_attestation_eat.h | 170 +++++++
+ .../pal_attestation_empty_intf.c                   |  30 ++
+ .../initial_attestation/pal_attestation_intf.c     |  54 +++
+ .../initial_attestation/pal_attestation_intf.h     |  30 ++
+ .../pal_internal_trusted_storage_empty_intf.c      |  30 ++
+ .../pal_internal_trusted_storage_intf.c            |  60 +++
+ .../pal_internal_trusted_storage_intf.h            |  31 ++
+ .../pal_protected_storage_empty_intf.c             |  30 ++
+ .../protected_storage/pal_protected_storage_intf.c |  75 ++++
+ .../protected_storage/pal_protected_storage_intf.h |  34 ++
+ .../platform/targets/linux/spe/pal_driver_intf.c   | 132 ++++++
+ .../platform/targets/linux/spe/pal_driver_intf.h   |  35 ++
+ api-tests/platform/targets/linux/target.cfg        |  57 +++
+ api-tests/tools/makefiles/Makefile                 |  24 +-
+ api-tests/tools/makefiles/testbuild.mk             |   2 +
+ api-tests/tools/makefiles/toolchain.mk             | 147 +++---
+ api-tests/tools/makefiles/valbuild.mk              |  15 +-
+ api-tests/val/common/val_target.c                  |   2 +-
+ api-tests/val/linux/main.c                         |   6 +
+ 38 files changed, 4105 insertions(+), 75 deletions(-)
+ create mode 100644 api-tests/platform/targets/linux/Makefile
+ create mode 100644 api-tests/platform/targets/linux/manifests/common/driver_partition_psa.json
+ create mode 100644 api-tests/platform/targets/linux/manifests/ipc/client_partition_psa.json
+ create mode 100644 api-tests/platform/targets/linux/manifests/ipc/server_partition_psa.json
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_client_api_empty_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_common.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_config.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_driver_ipc_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/common/pal_driver_ns_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config_check.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/crypto/pal_crypto_empty_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_empty_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_empty_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.h
+ create mode 100644 api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_empty_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.c
+ create mode 100644 api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.h
+ create mode 100644 api-tests/platform/targets/linux/spe/pal_driver_intf.c
+ create mode 100644 api-tests/platform/targets/linux/spe/pal_driver_intf.h
+ create mode 100644 api-tests/platform/targets/linux/target.cfg
+ create mode 100644 api-tests/val/linux/main.c
+
+diff --git a/api-tests/platform/targets/linux/Makefile b/api-tests/platform/targets/linux/Makefile
+new file mode 100644
+index 0000000..f757e4b
+--- /dev/null
++++ b/api-tests/platform/targets/linux/Makefile
+@@ -0,0 +1,160 @@
++# * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++# * SPDX-License-Identifier : Apache-2.0
++# *
++# * Licensed under the Apache License, Version 2.0 (the "License");
++# * you may not use this file except in compliance with the License.
++# * You may obtain a copy of the License at
++# *
++# *  http://www.apache.org/licenses/LICENSE-2.0
++# *
++# * Unless required by applicable law or agreed to in writing, software
++# * distributed under the License is distributed on an "AS IS" BASIS,
++# * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++# * See the License for the specific language governing permissions and
++# * limitations under the License.
++#**/
++
++include $(SOURCE)/tools/makefiles/toolchain.mk
++
++# Make variables to select correct instances of PAL files
++
++## PSA_IPC_IMPLEMENTED must be true for IPC SUITE
++PSA_IPC_IMPLEMENTED:=0
++
++## PSA_CRYPTO_IMPLEMENTED must be true for CRYPTO SUITE
++PSA_CRYPTO_IMPLEMENTED:=1
++
++## PSA_PROTECTED_STORAGE_IMPLEMENTED must be true for PROTECTED_STORAGE SUITE
++PSA_PROTECTED_STORAGE_IMPLEMENTED:=0
++
++## PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED must be true for INTERNAL_TRUSTED_STORAGE SUITE
++PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED:=1
++
++## PSA_INITIAL_ATTESTATION_IMPLEMENTED must be true for INITIAL_ATTESTATION SUITE
++PSA_INITIAL_ATTESTATION_IMPLEMENTED:=0
++
++# Make variables holding NSPE/SPE source files
++
++## PAL C source files part of NSPE library
++SRC_C_NSPE=
++
++## PAL ASM source files part of NSPE library
++SRC_ASM_NSPE=
++
++## PAL C source files part of SPE library - driver partition
++SRC_C_DRIVER_SP=
++
++## PAL ASM source files part of SPE library - driver partition
++SRC_ASM_DRIVER_SP=
++
++ifeq (${PSA_IPC_IMPLEMENTED},1)
++# When PSA_IPC_IMPLEMENTED=1, driver functionalities are implemented as RoT-services
++# and secure and non-secure clients will call to these RoT-services to get appropriate driver services.
++SRC_C_NSPE += pal_client_api_intf.c
++SRC_C_NSPE += pal_driver_ipc_intf.c
++
++# Driver files will be compiled as part of driver partition
++SRC_C_DRIVER_SP += pal_driver_intf.c pal_nvmem.c pal_uart.c pal_wd_cmsdk.c
++else
++
++# When PSA_IPC_IMPLEMENTED=0, driver files will be compiled as part of NSPE
++SRC_C_NSPE += pal_client_api_empty_intf.c
++SRC_C_NSPE += pal_driver_ns_intf.c pal_nvmem.c pal_uart.c pal_wd_cmsdk.c
++endif
++
++ifeq (${PSA_CRYPTO_IMPLEMENTED},1)
++SRC_C_NSPE += pal_crypto_intf.c
++else
++SRC_C_NSPE += pal_crypto_empty_intf.c
++endif
++
++ifeq (${PSA_PROTECTED_STORAGE_IMPLEMENTED},1)
++SRC_C_NSPE += pal_protected_storage_intf.c
++else
++SRC_C_NSPE += pal_protected_storage_empty_intf.c
++endif
++
++ifeq (${PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED},1)
++SRC_C_NSPE += pal_internal_trusted_storage_intf.c
++else
++SRC_C_NSPE += pal_internal_trusted_storage_empty_intf.c
++endif
++
++ifeq (${PSA_INITIAL_ATTESTATION_IMPLEMENTED},1)
++SRC_C_NSPE += pal_attestation_intf.c
++SRC_C_NSPE += pal_attestation_eat.c
++SRC_C_NSPE += pal_attestation_crypto.c
++else
++SRC_C_NSPE += pal_attestation_empty_intf.c
++endif
++
++INCLUDE= -I$(SOURCE)/platform/targets/$(TARGET)/nspe \
++         -I$(SOURCE)/platform/targets/$(TARGET)/spe \
++         -I$(BUILD)/platform/$(TARGET)/ \
++         -I$(SOURCE)/platform/drivers/uart/cmsdk \
++         -I$(SOURCE)/platform/drivers/nvmem/ \
++         -I$(SOURCE)/platform/drivers/watchdog/cmsdk \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/common \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/crypto \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/initial_attestation \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/initial_attestation/ext/inc \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/internal_trusted_storage \
++         -I$(SOURCE)/platform/targets/$(TARGET)/nspe/protected_storage \
++
++VPATH=$(SOURCE)/platform/targets/$(TARGET)/: \
++      $(SOURCE)/platform/targets/$(TARGET)/spe: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe: \
++      $(SOURCE)/platform/drivers/uart/cmsdk: \
++      $(SOURCE)/platform/drivers/nvmem: \
++      $(SOURCE)/platform/drivers/watchdog/cmsdk: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/common: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/crypto: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/initial_attestation: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/initial_attestation/ext/src: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/internal_trusted_storage: \
++      $(SOURCE)/platform/targets/$(TARGET)/nspe/protected_storage: \
++
++all: build
++
++ifeq (${PSA_IPC_IMPLEMENTED},1)
++build: mkdir build_nspe_pal build_spe_pal
++else
++build: mkdir build_nspe_pal
++endif
++
++mkdir:
++	@mkdir -p $(BUILD)/platform/nspe/
++	@mkdir -p $(BUILD)/platform/spe/
++
++# BUILD NSPE PAL
++build_nspe_pal: build_c_nspe build_asm_nspe pal_nspe.a
++
++build_c_nspe: $(SRC_C_NSPE:%.c=$(BUILD)/platform/nspe/%.o)
++build_asm_nspe: $(SRC_ASM_NSPE:%.s=$(BUILD)/platform/nspe/%.o)
++
++$(BUILD)/platform/nspe/%.o : %.c
++	$(CC) $(PAL_CDEFS) $(INCLUDE) -o $@ -c $<
++
++$(BUILD)/platform/nspe/%.o : %.s
++	$(AS) $(INCLUDE) -o $@ $<
++
++pal_nspe.a:
++	$(AR) $(AR_OPTIONS) $(BUILD)/platform/pal_nspe.a $(BUILD)/platform/nspe/*.o
++
++# BUILD SPE PAL
++build_spe_pal: build_driver_sp
++
++build_driver_sp: build_c_driver_sp build_asm_driver_sp
++
++build_c_driver_sp: $(SRC_C_DRIVER_SP:%.c=$(BUILD)/platform/spe/%_driver_sp.o)
++build_asm_driver_sp: $(SRC_ASM_DRIVER_SP:%.s=$(BUILD)/platform/spe/%_driver_sp.o)
++
++# Generated %_driver_sp.o(s) are used in spbuild.mk to create final driver_partition.a
++$(BUILD)/platform/spe/%_driver_sp.o : %.c
++	$(CC) $(INCLUDE) -DSPE_BUILD -o $@ -c $<
++
++$(BUILD)/platform/spe/%_driver_sp.o : %.s
++	$(AS) $(INCLUDE) -o $@ $<
++
++clean:
++	@rm -rf $(BUILD)/platform/nspe/* $(BUILD)/platform/spe/*.a
+diff --git a/api-tests/platform/targets/linux/manifests/common/driver_partition_psa.json b/api-tests/platform/targets/linux/manifests/common/driver_partition_psa.json
+new file mode 100644
+index 0000000..3e2ec67
+--- /dev/null
++++ b/api-tests/platform/targets/linux/manifests/common/driver_partition_psa.json
+@@ -0,0 +1,75 @@
++{
++  "psa_framework_version": 1.0,
++  "name": "DRIVER_PARTITION",
++  "type": "PSA-ROT",
++  "priority": "NORMAL",
++  "description": "Implements device services such print, flash read/write,. etc.",
++  "entry_point": "driver_main",
++  "stack_size": "0x400",
++  "services": [{
++      "name": "DRIVER_UART_SID",
++      "sid": "0x0000FC01",
++      "signal": "DRIVER_UART_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "DRIVER_WATCHDOG_SID",
++      "sid": "0x0000FC02",
++      "signal": "DRIVER_WATCHDOG_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "DRIVER_NVMEM_SID",
++      "sid": "0x0000FC03",
++      "signal": "DRIVER_NVMEM_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "DRIVER_TEST_SID",
++      "sid": "0x0000FC04",
++      "signal": "DRIVER_TEST_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    }
++  ],
++  "mmio_regions" : [
++    {
++      "name": "UART_REGION",
++      "base": "0x40004000",
++      "size": "0x1000",
++      "permission": "READ-WRITE"
++    },
++    {
++      "name": "WATCHDOG_REGION",
++      "base": "0x40008000",
++      "size": "0x1000",
++      "permission": "READ-WRITE"
++    },
++    {
++      "name": "NVMEM_REGION",
++      "base": "0x2002F000",
++      "size": "0x400",
++      "permission": "READ-WRITE"
++    },
++    {
++      "name": "DRIVER_PARTITION_MMIO",
++      "base": "0x200AF040",
++      "size": "0x20",
++      "permission": "READ-WRITE"
++    }
++  ],
++  "irqs": [
++    {
++       "description": "Using UART TX interrupt to test psa_wait and psa_eoi for irq_signal",
++       "signal": "DRIVER_UART_INTR_SIG",
++       "line_num": 17
++    }
++  ]
++}
+diff --git a/api-tests/platform/targets/linux/manifests/ipc/client_partition_psa.json b/api-tests/platform/targets/linux/manifests/ipc/client_partition_psa.json
+new file mode 100644
+index 0000000..b93377b
+--- /dev/null
++++ b/api-tests/platform/targets/linux/manifests/ipc/client_partition_psa.json
+@@ -0,0 +1,37 @@
++{
++  "psa_framework_version": 1.0,
++  "name": "CLIENT_PARTITION",
++  "type": "APPLICATION-ROT",
++  "priority": "NORMAL",
++  "description": "Client partition executing client test func from SPE",
++  "entry_point": "client_main",
++  "stack_size": "0x400",
++  "services": [{
++      "name": "CLIENT_TEST_DISPATCHER_SID",
++      "sid": "0x0000FA01",
++      "signal": "CLIENT_TEST_DISPATCHER_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    }
++  ],
++  "dependencies": [
++    "DRIVER_UART_SID",
++    "DRIVER_NVMEM_SID",
++    "DRIVER_TEST_SID",
++    "SERVER_TEST_DISPATCHER_SID",
++    "SERVER_UNSPECIFED_MINOR_V_SID",
++    "SERVER_STRICT_MINOR_VERSION_SID",
++    "SERVER_RELAX_MINOR_VERSION_SID",
++    "SERVER_SECURE_CONNECT_ONLY_SID",
++    "SERVER_CONNECTION_DROP_SID"
++  ],
++  "mmio_regions" : [
++    {
++      "name": "CLIENT_PARTITION_MMIO",
++      "base": "0x200AF000",
++      "size": "0x20",
++      "permission": "READ-WRITE"
++    }
++   ]
++}
+diff --git a/api-tests/platform/targets/linux/manifests/ipc/server_partition_psa.json b/api-tests/platform/targets/linux/manifests/ipc/server_partition_psa.json
+new file mode 100644
+index 0000000..146b8fb
+--- /dev/null
++++ b/api-tests/platform/targets/linux/manifests/ipc/server_partition_psa.json
+@@ -0,0 +1,69 @@
++{
++  "psa_framework_version": 1.0,
++  "name": "SERVER_PARTITION",
++  "type": "APPLICATION-ROT",
++  "priority": "NORMAL",
++  "description": "Server partition executing server test func",
++  "entry_point": "server_main",
++  "stack_size": "0x400",
++  "heap_size": "0x100",
++  "services": [{
++      "name": "SERVER_TEST_DISPATCHER_SID",
++      "sid": "0x0000FB01",
++      "signal": "SERVER_TEST_DISPATCHER_SIG",
++      "non_secure_clients": true,
++      "minor_version": 1,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "SERVER_SECURE_CONNECT_ONLY_SID",
++      "sid": "0x0000FB02",
++      "signal": "SERVER_SECURE_CONNECT_ONLY_SIG",
++      "non_secure_clients": false,
++      "minor_version": 2,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "SERVER_STRICT_MINOR_VERSION_SID",
++      "sid": "0x0000FB03",
++      "signal": "SERVER_STRICT_MINOR_VERSION_SIG",
++      "non_secure_clients": true,
++      "minor_version": 2,
++      "minor_policy": "STRICT"
++    },
++    {
++      "name": "SERVER_UNSPECIFED_MINOR_V_SID",
++      "sid": "0x0000FB04",
++      "signal": "SERVER_UNSPECIFED_MINOR_V_SIG",
++      "non_secure_clients": true
++    },
++    {
++      "name": "SERVER_RELAX_MINOR_VERSION_SID",
++      "sid": "0x0000FB05",
++      "signal": "SERVER_RELAX_MINOR_VERSION_SIG",
++      "non_secure_clients": true,
++      "minor_version": 2,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "SERVER_UNEXTERN_SID",
++      "sid": "0x0000FB06",
++      "signal": "SERVER_UNEXTERN_SIG",
++      "non_secure_clients": true,
++      "minor_version": 2,
++      "minor_policy": "RELAXED"
++    },
++    {
++      "name": "SERVER_CONNECTION_DROP_SID",
++      "sid": "0x0000FB07",
++      "signal": "SERVER_CONNECTION_DROP_SIG",
++      "non_secure_clients": true,
++      "minor_version": 2,
++      "minor_policy": "RELAXED"
++    }
++  ],
++  "dependencies": [
++    "DRIVER_UART_SID",
++    "DRIVER_NVMEM_SID"
++  ]
++}
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_client_api_empty_intf.c b/api-tests/platform/targets/linux/nspe/common/pal_client_api_empty_intf.c
+new file mode 100644
+index 0000000..578b4ce
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_client_api_empty_intf.c
+@@ -0,0 +1,93 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_common.h"
++#include "pal_client_api_intf.h"
++
++/**
++ * @brief - Retrieve the version of the PSA Framework API that is implemented.
++ * This is a wrapper API for psa_framework_version API.
++ * @param    - void
++ * @return   - The PSA Framework API version.
++ */
++
++uint32_t pal_ipc_framework_version(void)
++{
++    return 0;
++}
++
++/**
++ * @brief - Retrieve the minor version of a Root of Trust Service by its SID.
++ * This is a wrapper API for the psa_version API.
++ * @param - sid The Root of Trust Service ID
++ * @return - Minor version of Root of Trust Service or PSA_VERSION_NONE if Root of Trust
++ *           Service not present on the system.
++ */
++
++uint32_t pal_ipc_version(uint32_t sid)
++{
++    return PSA_VERSION_NONE;
++}
++
++/**
++ * @brief   - Connect to given sid.
++ *            This is a wrapper API for the psa_connect API.
++ * @param   - sid : RoT service id
++ * @param   - minor_version : minor_version of RoT service
++ * @return  - psa_handle_t : return connection handle
++ */
++
++psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version)
++{
++    return PSA_NULL_HANDLE;
++}
++
++/**
++ * @brief Call a connected Root of Trust Service.
++ * This is a wrapper API for the psa_call API.
++ * The caller must provide an array of ::psa_invec_t structures as the input payload.
++ *
++ * @param  -handle   Handle for the connection.
++ * @param  -in_vec   Array of psa_invec structures.
++ * @param  -in_len   Number of psa_invec structures in in_vec.
++ * @param  -out_vec  Array of psa_outvec structures for optional Root of Trust Service response.
++ * @param  -out_len  Number of psa_outvec structures in out_vec.
++ * @return -psa_status_t
++ */
++
++psa_status_t pal_ipc_call(psa_handle_t handle,
++                         const psa_invec *in_vec,
++                         size_t in_len,
++                         psa_outvec *out_vec,
++                         size_t out_len)
++{
++    return (PSA_SUCCESS - 1);
++}
++
++/**
++ * @brief Close a connection to a Root of Trust Service.
++ * This is a wrapper API for the psa_close API.
++ * Sends the PSA_IPC_DISCONNECT message to the Root of Trust Service so it can clean up resources.
++ *
++ * @param handle Handle for the connection.
++ * @return void
++ */
++
++void pal_ipc_close(psa_handle_t handle)
++{
++    return;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.c b/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.c
+new file mode 100644
+index 0000000..20ddd11
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.c
+@@ -0,0 +1,97 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_common.h"
++#include "pal_client_api_intf.h"
++
++/**
++ * @brief   - Retrieve the version of the PSA Framework API that is implemented.
++ * This is a wrapper API for psa_framework_version API.
++ * @param    - void
++ * @return   - The PSA Framework API version.
++ *             Note - Return PAL_STATUS_ERROR if PSA IPC is not implemented.
++ */
++
++uint32_t pal_ipc_framework_version(void)
++{
++    return (psa_framework_version());
++}
++
++/**
++ * @brief   - Retrieve the minor version of a Root of Trust Service by its SID.
++ * This is a wrapper API for the psa_version API.
++ * @param - sid The Root of Trust Service ID
++ * @return - Minor version of Root of Trust Service or PSA_VERSION_NONE if Root of Trust
++ *           Service not present on the system.
++ *           Note - Return PAL_STATUS_ERROR if PSA IPC is not implemented.
++ */
++
++uint32_t pal_ipc_version(uint32_t sid)
++{
++    return (psa_version(sid));
++}
++
++/**
++ * @brief   - Connect to given sid.
++ *            This is a wrapper API for the psa_connect API.
++ * @param   - sid : RoT service id
++ * @param   - minor_version : minor_version of RoT service
++ * @return  - psa_handle_t : return connection handle
++ *            Note - Return PSA_NULL_HANDLE if PSA IPC is not implemented.
++ */
++
++psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version)
++{
++    return (psa_connect(sid, minor_version));
++}
++
++/**
++ * @brief Call a connected Root of Trust Service.
++ * This is a wrapper API for the psa_call API.
++ * The caller must provide an array of ::psa_invec_t structures as the input payload.
++ *
++ * @param  -handle   Handle for the connection.
++ * @param  -in_vec   Array of psa_invec structures.
++ * @param  -in_len   Number of psa_invec structures in in_vec.
++ * @param  -out_vec  Array of psa_outvec structures for optional Root of Trust Service response.
++ * @param  -out_len  Number of psa_outvec structures in out_vec.
++ * @return -psa_status_t
++ *          Note - Return -1 if PSA IPC is not implemented.
++ */
++
++psa_status_t pal_ipc_call(psa_handle_t handle,
++                         const psa_invec *in_vec,
++                         size_t in_len,
++                         psa_outvec *out_vec,
++                         size_t out_len)
++{
++    return (psa_call(handle, in_vec, in_len, out_vec, out_len));
++}
++
++/**
++ * @brief Close a connection to a Root of Trust Service.
++ * This is a wrapper API for the psa_close API.
++ * Sends the PSA_IPC_DISCONNECT message to the Root of Trust Service so it can clean up resources.
++ *
++ * @param  - handle Handle for the connection.
++ * @return - void
++ */
++
++void pal_ipc_close(psa_handle_t handle)
++{
++    psa_close(handle);
++}
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.h b/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.h
+new file mode 100644
+index 0000000..3f5741e
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_client_api_intf.h
+@@ -0,0 +1,32 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_CLIENT_API_H_
++#define _PAL_CLIENT_API_H_
++
++#include "pal_common.h"
++
++uint32_t pal_ipc_framework_version(void);
++uint32_t pal_ipc_version(uint32_t sid);
++psa_handle_t pal_ipc_connect(uint32_t sid, uint32_t minor_version);
++psa_status_t pal_ipc_call(psa_handle_t handle,
++                      const psa_invec *in_vec,
++                      size_t in_len,
++                      psa_outvec *out_vec,
++                      size_t out_len);
++void pal_ipc_close(psa_handle_t handle);
++#endif /* _PAL_CLIENT_API_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_common.h b/api-tests/platform/targets/linux/nspe/common/pal_common.h
+new file mode 100644
+index 0000000..3ebe1e1
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_common.h
+@@ -0,0 +1,118 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_COMMON_H_
++#define _PAL_COMMON_H_
++
++#include <string.h>
++#include <stdint.h>
++#include <stdlib.h>
++#include <limits.h>
++#include <stdarg.h>
++
++#ifndef TARGET_CFG_BUILD
++#include "pal_config.h"
++#include "pal_crypto_config.h"
++#endif
++
++/* typedef's */
++typedef uint8_t             bool_t;
++typedef uint32_t            addr_t;
++typedef uint32_t            test_id_t;
++typedef uint32_t            block_id_t;
++typedef char                char8_t;
++typedef uint32_t            cfg_id_t;
++
++#define PAL_STATUS_UNSUPPORTED_FUNC      0xFF
++
++typedef enum
++{
++    PAL_STATUS_SUCCESS = 0x0,
++    PAL_STATUS_ERROR   = 0x80
++} pal_status_t;
++
++typedef enum {
++    NVMEM_READ             = 0x1,
++    NVMEM_WRITE            = 0x2,
++} nvmem_fn_type_t;
++
++typedef struct {
++    nvmem_fn_type_t nvmem_fn_type;
++    addr_t base;
++    uint32_t offset;
++    int size;
++} nvmem_param_t;
++
++typedef enum {
++    WD_INIT_SEQ         = 0x1,
++    WD_ENABLE_SEQ       = 0x2,
++    WD_DISABLE_SEQ      = 0x3,
++    WD_STATUS_SEQ       = 0x4,
++} wd_fn_type_t;
++
++typedef enum {
++    WD_LOW_TIMEOUT      = 0x1,
++    WD_MEDIUM_TIMEOUT   = 0x2,
++    WD_HIGH_TIMEOUT     = 0x3,
++    WD_CRYPTO_TIMEOUT   = 0x4,
++} wd_timeout_type_t;
++
++typedef struct {
++    wd_fn_type_t wd_fn_type;
++    addr_t       wd_base_addr;
++    uint32_t     wd_time_us;
++    uint32_t     wd_timer_tick_us;
++} wd_param_t;
++
++typedef enum {
++    UART_INIT             = 0x1,
++    UART_PRINT            = 0x2,
++} uart_fn_type_t;
++
++/*
++ * Redefining some of the client.h elements for compilation to go through
++ * when PSA IPC APIs are not implemented.
++ */
++#if (PSA_IPC_IMPLEMENTED == 0)
++
++#ifndef PSA_VERSION_NONE
++#define PSA_VERSION_NONE            (0)
++#endif
++
++#ifndef PSA_SUCCESS
++#define PSA_SUCCESS                 (0)
++typedef int32_t psa_status_t;
++#endif
++typedef int32_t psa_handle_t;
++
++#ifndef PSA_NULL_HANDLE
++#define PSA_NULL_HANDLE             ((psa_handle_t)0)
++#endif
++
++typedef struct psa_invec {
++    const void *base;
++    size_t len;
++} psa_invec;
++
++typedef struct psa_outvec {
++    void *base;
++    size_t len;
++} psa_outvec;
++
++#endif /* PSA_IPC_IMPLEMENTED */
++
++#endif /* _PAL_COMMON_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_config.h b/api-tests/platform/targets/linux/nspe/common/pal_config.h
+new file mode 100644
+index 0000000..e3f70ad
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_config.h
+@@ -0,0 +1,119 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_CONFIG_H_
++#define _PAL_CONFIG_H_
++
++/*
++ * List of macros used by test suite
++ */
++#if !defined(PSA_IPC_IMPLEMENTED)
++#define PSA_IPC_IMPLEMENTED 0
++#endif
++
++#if !defined(PSA_CRYPTO_IMPLEMENTED)
++#define PSA_CRYPTO_IMPLEMENTED 0
++#endif
++
++#if !defined(PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED)
++#define PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED 0
++#endif
++
++#if !defined(PSA_PROTECTED_STORAGE_IMPLEMENTED)
++#define PSA_PROTECTED_STORAGE_IMPLEMENTED 0
++#endif
++
++#if !defined(PSA_INITIAL_ATTESTATION_IMPLEMENTED)
++#define PSA_INITIAL_ATTESTATION_IMPLEMENTED 0
++#endif
++
++#if (PSA_IPC_IMPLEMENTED == 0) && \
++    (PSA_CRYPTO_IMPLEMENTED == 0) && \
++    (PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED == 0) && \
++    (PSA_PROTECTED_STORAGE_IMPLEMENTED == 0) && \
++    (PSA_INITIAL_ATTESTATION_IMPLEMENTED == 0)
++#error "You must define at least one of these macros to run test suite"
++#endif
++
++#if !defined(VERBOSE)
++#define VERBOSE 3 /* Print verbosity = TEST */
++#endif
++
++#if (!defined(VAL_NSPE_BUILD) && !defined(SPE_BUILD))
++#define VAL_NSPE_BUILD 1
++#endif
++
++#if (!defined(NONSECURE_TEST_BUILD) && !defined(SPE_BUILD))
++#define NONSECURE_TEST_BUILD 1
++#endif
++
++#if !defined(TEST_COMBINE_ARCHIVE)
++#define TEST_COMBINE_ARCHIVE 0 /* Combine test archive or binary? */
++#endif
++
++#if !defined(WATCHDOG_AVAILABLE)
++#define WATCHDOG_AVAILABLE 0 /* If zero, skip watchdog programming */
++#endif
++
++#if !defined(SP_HEAP_MEM_SUPP)
++#define SP_HEAP_MEM_SUPP 0 /* Are Dynamic funcs available to secure partition? */
++#endif
++
++/*
++ * Include of PSA defined Header files
++ */
++
++#if PSA_IPC_IMPLEMENTED
++/* psa/client.h: Contains the PSA Client API elements */
++#include "psa/client.h"
++
++/*
++ * psa_manifest/sid.h:  Macro definitions derived from manifest files that map from RoT Service
++ * names to Service IDs (SIDs). Partition manifest parse build tool must provide the implementation
++ * of this file.
++*/
++#include "psa_manifest/sid.h"
++
++/*
++ * psa_manifest/pid.h: Secure Partition IDs
++ * Macro definitions that map from Secure Partition names to Secure Partition IDs.
++ * Partition manifest parse build tool must provide the implementation of this file.
++*/
++#include "psa_manifest/pid.h"
++#endif
++
++#if PSA_CRYPTO_IMPLEMENTED
++/* psa/crypto.h: Contains the PSA Crypto API elements */
++#include "psa/crypto.h"
++#endif
++
++#if PSA_INTERNAL_TRUSTED_STORAGE_IMPLEMENTED
++/* psa/internal_trusted_storage.h: Contains the PSA ITS API elements */
++#include "psa/internal_trusted_storage.h"
++#endif
++
++#if PSA_PROTECTED_STORAGE_IMPLEMENTED
++/* psa/protected_storage.h: Contains the PSA PS API elements */
++#include "psa/protected_storage.h"
++#endif
++
++#if PSA_INITIAL_ATTESTATION_IMPLEMENTED
++/* psa/initial_attestation.h: Contains the PSA Initial Attestation API elements */
++#include "psa/initial_attestation.h"
++#endif
++
++#endif /* _PAL_CONFIG_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_driver_ipc_intf.c b/api-tests/platform/targets/linux/nspe/common/pal_driver_ipc_intf.c
+new file mode 100644
+index 0000000..f8f773f
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_driver_ipc_intf.c
+@@ -0,0 +1,305 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_common.h"
++#include "pal_client_api_intf.h"
++
++/**
++    @brief    - This function initializes the UART
++    @param    - uart base addr
++    @return   - SUCCESS/FAILURE
++**/
++int pal_uart_init_ns(uint32_t uart_base_addr)
++{
++    psa_handle_t            print_handle = 0;
++    psa_status_t            status_of_call = PSA_SUCCESS;
++    uart_fn_type_t          uart_fn = UART_INIT;
++
++    psa_invec data[3] = {{&uart_fn, sizeof(uart_fn)},
++                         {&uart_base_addr, sizeof(uart_base_addr)},
++                         {NULL, 0}};
++
++    print_handle = pal_ipc_connect(DRIVER_UART_SID, 0);
++    if (print_handle < 0)
++    {
++        return(PAL_STATUS_ERROR);
++    }
++
++    status_of_call = pal_ipc_call(print_handle, data, 3, NULL, 0);
++    if (status_of_call != PSA_SUCCESS)
++    {
++        return(PAL_STATUS_ERROR);
++    }
++
++    pal_ipc_close(print_handle);
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - This function parses the input string and writes bytes into UART TX FIFO
++    @param    - str      : Input String
++              - data     : Value for format specifier
++    @return   - SUCCESS/FAILURE
++**/
++
++int pal_print_ns(char *str, int32_t data)
++{
++    int             string_len = 0;
++    char            *p = str;
++    psa_handle_t    print_handle = 0;
++    psa_status_t    status_of_call = PSA_SUCCESS;
++    pal_status_t    status = PAL_STATUS_SUCCESS;
++    uart_fn_type_t  uart_fn = UART_PRINT;
++
++    while (*p != '\0')
++    {
++        string_len++;
++        p++;
++    }
++
++    psa_invec data1[3] = {{&uart_fn, sizeof(uart_fn)},
++                          {str, string_len+1},
++                          {&data, sizeof(data)}};
++    print_handle = pal_ipc_connect(DRIVER_UART_SID, 0);
++
++    if (print_handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(print_handle, data1, 3, NULL, 0);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            status = PAL_STATUS_ERROR;
++        }
++    }
++    pal_ipc_close(print_handle);
++    return status;
++}
++
++/**
++    @brief           - Initializes an hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++                     - time_us         : Time in micro seconds
++                     - timer_tick_us   : Number of ticks per micro second
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_init_ns(addr_t base_addr, uint32_t time_us, uint32_t timer_tick_us)
++{
++    wd_param_t              wd_param;
++    psa_handle_t            handle = 0;
++    psa_status_t            status_of_call = PSA_SUCCESS;
++
++    wd_param.wd_fn_type = WD_INIT_SEQ;
++    wd_param.wd_base_addr = base_addr;
++    wd_param.wd_time_us = time_us;
++    wd_param.wd_timer_tick_us = timer_tick_us;
++    psa_invec invec[1] = {{&wd_param, sizeof(wd_param)}};
++
++    handle = pal_ipc_connect(DRIVER_WATCHDOG_SID, 0);
++    if (handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(handle, invec, 1, NULL, 0);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            pal_ipc_close(handle);
++            return PAL_STATUS_ERROR;
++        }
++    }
++   pal_ipc_close(handle);
++   return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief           - Enables a hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_enable_ns(addr_t base_addr)
++{
++    wd_param_t              wd_param;
++    psa_handle_t            handle = 0;
++    psa_status_t            status_of_call = PSA_SUCCESS;
++
++    wd_param.wd_fn_type = WD_ENABLE_SEQ;
++    wd_param.wd_base_addr = base_addr;
++    wd_param.wd_time_us = 0;
++    wd_param.wd_timer_tick_us = 0;
++    psa_invec invec[1] = {{&wd_param, sizeof(wd_param)}};
++
++    handle = pal_ipc_connect(DRIVER_WATCHDOG_SID, 0);
++    if (handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(handle, invec, 1, NULL, 0);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            pal_ipc_close(handle);
++            return PAL_STATUS_ERROR;
++        }
++    }
++   pal_ipc_close(handle);
++   return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief           - Disables a hardware watchdog timer
++    @param           - base_addr  : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_disable_ns(addr_t base_addr)
++{
++    wd_param_t              wd_param;
++    psa_handle_t            handle = 0;
++    psa_status_t            status_of_call = PSA_SUCCESS;
++
++    wd_param.wd_fn_type = WD_DISABLE_SEQ;
++    wd_param.wd_base_addr = base_addr;
++    wd_param.wd_time_us = 0;
++    wd_param.wd_timer_tick_us = 0;
++    psa_invec invec[1] = {{&wd_param, sizeof(wd_param)}};
++
++    handle = pal_ipc_connect(DRIVER_WATCHDOG_SID, 0);
++    if (handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(handle, invec, 1, NULL, 0);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            pal_ipc_close(handle);
++            return PAL_STATUS_ERROR;
++        }
++    }
++   pal_ipc_close(handle);
++   return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - Reads from given non-volatile address.
++    @param    - base    : Base address of nvmem
++                offset  : Offset
++                buffer  : Pointer to source address
++                size    : Number of bytes
++    @return   - SUCCESS/FAILURE
++**/
++int pal_nvmem_read_ns(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    nvmem_param_t   nvmem_param;
++    psa_handle_t    handle = 0;
++    psa_status_t    status_of_call = PSA_SUCCESS;
++
++    nvmem_param.nvmem_fn_type = NVMEM_READ;
++    nvmem_param.base = base;
++    nvmem_param.offset = offset;
++    nvmem_param.size = size;
++    psa_invec invec[1] = {{&nvmem_param, sizeof(nvmem_param)}};
++    psa_outvec outvec[1] = {{buffer, size}};
++
++    handle = pal_ipc_connect(DRIVER_NVMEM_SID, 0);
++    if (handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(handle, invec, 1, outvec, 1);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            pal_ipc_close(handle);
++            return PAL_STATUS_ERROR;
++        }
++    }
++   psa_close(handle);
++   return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - Writes into given non-volatile address.
++    @param    - base    : Base address of nvmem
++                offset  : Offset
++                buffer  : Pointer to source address
++                size    : Number of bytes
++    @return   - SUCCESS/FAILURE
++**/
++int pal_nvmem_write_ns(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    nvmem_param_t   nvmem_param;
++    psa_handle_t    handle = 0;
++    psa_status_t    status_of_call = PSA_SUCCESS;
++
++    nvmem_param.nvmem_fn_type = NVMEM_WRITE;
++    nvmem_param.base = base;
++    nvmem_param.offset = offset;
++    nvmem_param.size = size;
++    psa_invec invec[2] = {{&nvmem_param, sizeof(nvmem_param)}, {buffer, size}};
++
++    handle = pal_ipc_connect(DRIVER_NVMEM_SID, 0);
++    if (handle < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    else
++    {
++        status_of_call = pal_ipc_call(handle, invec, 2, NULL, 0);
++        if (status_of_call != PSA_SUCCESS)
++        {
++            pal_ipc_close(handle);
++            return PAL_STATUS_ERROR;
++        }
++    }
++   pal_ipc_close(handle);
++   return PAL_STATUS_SUCCESS;
++}
++
++/**
++ *   @brief    - This function will read peripherals using SPI commands
++ *   @param    - addr : address of the peripheral
++ *               data : read buffer
++ *               len  : length of the read buffer in bytes
++ *   @return   - error status
++**/
++int pal_spi_read(addr_t addr, uint8_t *data, uint32_t len)
++{
++    return 0xFF;
++}
++
++/**
++ *   @brief    - Terminates the simulation at the end of all tests completion.
++ *               By default, it put cpus into power down mode.
++ *   @param    - void
++ *   @return   - void
++**/
++void pal_terminate_simulation(void)
++{
++    /* Add logic to terminate the simluation */
++
++    while(1)
++    {
++        asm volatile("WFI");
++    }
++}
+diff --git a/api-tests/platform/targets/linux/nspe/common/pal_driver_ns_intf.c b/api-tests/platform/targets/linux/nspe/common/pal_driver_ns_intf.c
+new file mode 100644
+index 0000000..c4e66c8
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/common/pal_driver_ns_intf.c
+@@ -0,0 +1,180 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include <inttypes.h>
++#include <limits.h>
++#include <stddef.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++
++#include "pal_common.h"
++#include "pal_uart.h"
++#include "pal_nvmem.h"
++
++#define LINUX_NVMEM_SIZE (1024 * 4)
++#define LINUX_NVMEM_BASE 0
++static uint8_t g_nvmem[LINUX_NVMEM_SIZE];
++
++static int nvmem_check_bounds(addr_t base, uint32_t offset, int size)
++{
++    if (base != LINUX_NVMEM_BASE)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    if (offset > LINUX_NVMEM_SIZE)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    if (size < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    if (offset > INT_MAX - size)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    if (offset + size > LINUX_NVMEM_SIZE)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - Reads from given non-volatile address.
++    @param    - base    : Base address of nvmem (must be zero)
++                offset  : Offset
++                buffer  : Pointer to dest address
++                size    : Number of bytes
++    @return   - SUCCESS/FAILURE
++**/
++int pal_nvmem_read_ns(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    if (nvmem_check_bounds(base, offset, size) != PAL_STATUS_SUCCESS)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    memcpy(buffer, g_nvmem + offset, size);
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - Writes into given non-volatile address.
++    @param    - base    : Base address of nvmem
++                offset  : Offset
++                buffer  : Pointer to source address
++                size    : Number of bytes
++    @return   - SUCCESS/FAILURE
++**/
++int pal_nvmem_write_ns(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    if (nvmem_check_bounds(base, offset, size) != PAL_STATUS_SUCCESS)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    memcpy(g_nvmem + offset, buffer, size);
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - This function initializes the UART
++
++    On Linux we don't really use a UART to print test output, we just send it
++    to stdout. No init necessary.
++
++    @param    - uart base addr (ignored)
++    @return   - SUCCESS/FAILURE
++**/
++int pal_uart_init_ns(uint32_t uart_base_addr)
++{
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief    - This function parses the input string and writes bytes into UART TX FIFO
++
++    On Linux we don't really use a UART to print test output, we just send it
++    to stdout.
++
++    @param    - str      : Input String
++              - data     : Value for format specifier
++    @return   - SUCCESS/FAILURE
++**/
++int pal_print_ns(char *str, int32_t data)
++{
++    if (printf(str, data) < 0)
++    {
++        return PAL_STATUS_ERROR;
++    }
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief           - Initializes an hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++                     - time_us         : Time in micro seconds
++                     - timer_tick_us   : Number of ticks per micro second
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_init_ns(addr_t base_addr, uint32_t time_us, uint32_t timer_tick_us)
++{
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief           - Enables a hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_enable_ns(addr_t base_addr)
++{
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++    @brief           - Disables a hardware watchdog timer
++    @param           - base_addr  : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_disable_ns(addr_t base_addr)
++{
++    return PAL_STATUS_SUCCESS;
++}
++
++/**
++ *   @brief    - This function will read peripherals using SPI commands
++ *   @param    - addr : address of the peripheral
++ *               data : read buffer
++ *               len  : length of the read buffer in bytes
++ *   @return   - error status
++**/
++int pal_spi_read(addr_t addr, uint8_t *data, uint32_t len)
++{
++    return PAL_STATUS_ERROR;
++}
++
++/**
++ *   @brief    - Terminates the simulation at the end of all tests completion.
++ *               By default, it put cpus into power down mode.
++ *   @param    - void
++ *   @return   - void
++**/
++void pal_terminate_simulation(void)
++{
++    exit(1);
++}
+diff --git a/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config.h b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config.h
+new file mode 100644
+index 0000000..88033a6
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config.h
+@@ -0,0 +1,323 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++/*
++ * \file pal_crypto_config.h
++ *
++ * \brief Configuration options for crypto tests (set of defines)
++ *
++ *  This set of compile-time options may be used to enable
++ *  or disable features selectively for crypto test suite
++ */
++
++#ifndef _PAL_CRYPTO_CONFIG_H_
++#define _PAL_CRYPTO_CONFIG_H_
++/**
++ * \def ARCH_TEST_RSA
++ *
++ * Enable the RSA public-key cryptosystem.
++ * By default all supported keys are enabled.
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_RSA
++#define ARCH_TEST_RSA_1024
++#define ARCH_TEST_RSA_2048
++#define ARCH_TEST_RSA_3072
++
++/**
++ * \def  ARCH_TEST_ECC
++ * \def  ARCH_TEST_ECC_CURVE_SECPXXXR1
++ *
++ * Enable the elliptic curve
++ * Enable specific curves within the Elliptic Curve
++ * module.  By default all supported curves are enabled.
++ *
++ * Requires: ARCH_TEST_ECC
++ * Comment macros to disable the curve
++ */
++#define ARCH_TEST_ECC
++#define ARCH_TEST_ECC_CURVE_SECP192R1
++#define ARCH_TEST_ECC_CURVE_SECP224R1
++#define ARCH_TEST_ECC_CURVE_SECP256R1
++#define ARCH_TEST_ECC_CURVE_SECP384R1
++
++/**
++ * \def ARCH_TEST_AES
++ *
++ * Enable the AES block cipher.
++ * By default all supported keys are enabled.
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_AES
++#define ARCH_TEST_AES_128
++#define ARCH_TEST_AES_192
++#define ARCH_TEST_AES_256
++#define ARCH_TEST_AES_512
++
++/**
++ * \def  ARCH_TEST_DES
++ *
++ * Enable the DES block cipher.
++ * By default all supported keys are enabled.
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_DES
++#define ARCH_TEST_DES_1KEY
++#define ARCH_TEST_DES_2KEY
++#define ARCH_TEST_DES_3KEY
++
++/**
++ * \def  ARCH_TEST_RAW
++ *
++ * A "key" of this type cannot be used for any cryptographic operation.
++ * Applications may use this type to store arbitrary data in the keystore.
++ */
++#define ARCH_TEST_RAW
++
++/**
++ * \def ARCH_TEST_CIPER
++ *
++ * Enable the generic cipher layer.
++ */
++
++#define ARCH_TEST_CIPER
++
++/**
++ * \def ARCH_TEST_ARC4
++ *
++ * Enable the ARC4 key type.
++ */
++#define ARCH_TEST_ARC4
++
++/**
++ * \def ARCH_TEST_CIPER_MODE_CTR
++ *
++ * Enable Counter Block Cipher mode (CTR) for symmetric ciphers.
++ *
++ * Requires: ARCH_TEST_CIPER
++ */
++#define ARCH_TEST_CIPER_MODE_CTR
++
++/**
++ * \def ARCH_TEST_CIPER_MODE_CFB
++ *
++ * Enable Cipher Feedback mode (CFB) for symmetric ciphers.
++ *
++ * Requires: ARCH_TEST_CIPER
++ */
++#define ARCH_TEST_CIPER_MODE_CFB
++
++/**
++ * \def ARCH_TEST_CIPER_MODE_CBC
++ *
++ * Enable Cipher Block Chaining mode (CBC) for symmetric ciphers.
++ *
++ * Requires: ARCH_TEST_CIPER
++ */
++#define ARCH_TEST_CIPER_MODE_CBC
++
++/**
++ * \def ARCH_TEST_CTR_AES
++ *
++ * Requires: ARCH_TEST_CIPER, ARCH_TEST_AES, ARCH_TEST_CIPER_MODE_CTR
++ */
++#define ARCH_TEST_CTR_AES
++
++/**
++ * \def ARCH_TEST_CBC_AES
++ *
++ * Requires: ARCH_TEST_CIPER, ARCH_TEST_AES, ARCH_TEST_CIPER_MODE_CBC
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_CBC_AES
++#define ARCH_TEST_CBC_AES_NO_PADDING
++
++/**
++ * \def ARCH_TEST_CBC_NO_PADDING
++ *
++ * Requires: ARCH_TEST_CIPER, ARCH_TEST_CIPER_MODE_CBC
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_CBC_NO_PADDING
++
++/**
++ * \def ARCH_TEST_CFB_AES
++ *
++ * Requires: ARCH_TEST_CIPER, ARCH_TEST_AES, ARCH_TEST_CIPER_MODE_CFB
++ */
++#define ARCH_TEST_CFB_AES
++
++/**
++ * \def ARCH_TEST_PKCS1V15_*
++ *
++ * Enable support for PKCS#1 v1.5 encoding.
++ * Enable support for PKCS#1 v1.5 operations.
++ * Enable support for RSA-OAEP
++ *
++ * Requires: ARCH_TEST_RSA, ARCH_TEST_PKCS1V15
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_PKCS1V15
++#define ARCH_TEST_RSA_PKCS1V15_SIGN
++#define ARCH_TEST_RSA_PKCS1V15_SIGN_RAW
++#define ARCH_TEST_RSA_PKCS1V15_CRYPT
++#define ARCH_TEST_RSA_OAEP
++
++/**
++ * \def ARCH_TEST_CBC_PKCS7
++ *
++ * Requires: ARCH_TEST_CIPER_MODE_CBC
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_CBC_PKCS7
++
++/**
++ * \def ARCH_TEST_ASYMMETRIC_ENCRYPTION
++ *
++ * Enable support for Asymmetric encryption algorithms
++ */
++#define ARCH_TEST_ASYMMETRIC_ENCRYPTION
++
++/**
++ * \def ARCH_TEST_HASH
++ *
++ * Enable the hash algorithm.
++ */
++#define ARCH_TEST_HASH
++
++/**
++ * \def  ARCH_TEST_HMAC
++ *
++ * The key policy determines which underlying hash algorithm the key can be
++ * used for.
++ *
++ * Requires: ARCH_TEST_HASH
++ */
++#define ARCH_TEST_HMAC
++
++/**
++ * \def ARCH_TEST_MDX
++ * \def ARCH_TEST_SHAXXX
++ *
++ * Enable the MDX algorithm.
++ * Enable the SHAXXX algorithm.
++ *
++ * Requires: ARCH_TEST_HASH
++ *
++ * Comment macros to disable the types
++ */
++// #define ARCH_TEST_MD2
++// #define ARCH_TEST_MD4
++#define ARCH_TEST_MD5
++#define ARCH_TEST_RIPEMD160
++#define ARCH_TEST_SHA1
++#define ARCH_TEST_SHA224
++#define ARCH_TEST_SHA256
++#define ARCH_TEST_SHA384
++#define ARCH_TEST_SHA512
++// #define ARCH_TEST_SHA512_224
++// #define ARCH_TEST_SHA512_256
++// #define ARCH_TEST_SHA3_224
++// #define ARCH_TEST_SHA3_256
++// #define ARCH_TEST_SHA3_384
++// #define ARCH_TEST_SHA3_512
++
++/**
++ * \def ARCH_TEST_HKDF
++ *
++ * Enable the HKDF algorithm (RFC 5869).
++ *
++ * Requires: ARCH_TEST_HASH
++*/
++#define ARCH_TEST_HKDF
++
++/**
++ * \def ARCH_TEST_xMAC
++ *
++ * Enable the xMAC (Cipher/Hash/G-based Message Authentication Code) mode for block
++ * ciphers.
++ * Requires: ARCH_TEST_AES or ARCH_TEST_DES
++ *
++ * Comment macros to disable the types
++ */
++#define ARCH_TEST_CMAC
++#define ARCH_TEST_GMAC
++#define ARCH_TEST_HMAC
++
++/**
++ * \def ARCH_TEST_CCM
++ *
++ * Enable the Counter with CBC-MAC (CCM) mode for 128-bit block cipher.
++ *
++ * Requires: ARCH_TEST_AES
++ */
++#define ARCH_TEST_CCM
++
++/**
++ * \def ARCH_TEST_GCM
++ *
++ * Enable the Galois/Counter Mode (GCM) for AES.
++ *
++ * Requires: ARCH_TEST_AES
++ *
++ */
++#define ARCH_TEST_GCM
++
++/**
++ * \def ARCH_TEST_TRUNCATED_MAC
++ *
++ * Enable support for RFC 6066 truncated HMAC in SSL.
++ *
++ * Comment this macro to disable support for truncated HMAC in SSL
++ */
++#define ARCH_TEST_TRUNCATED_MAC
++
++
++/**
++ * \def ARCH_TEST_ECDH
++ *
++ * Enable the elliptic curve Diffie-Hellman library.
++ *
++ * Requires: ARCH_TEST_ECC
++ */
++#define ARCH_TEST_ECDH
++
++/**
++ * \def ARCH_TEST_ECDSA
++ *
++ * Enable the elliptic curve DSA library.
++ * Requires: ARCH_TEST_ECC
++ */
++#define ARCH_TEST_ECDSA
++
++/**
++ * \def ARCH_TEST_DETERMINISTIC_ECDSA
++ *
++ * Enable deterministic ECDSA (RFC 6979).
++*/
++#define ARCH_TEST_DETERMINISTIC_ECDSA
++
++#include "pal_crypto_config_check.h"
++
++#endif /* _PAL_CRYPTO_CONFIG_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config_check.h b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config_check.h
+new file mode 100644
+index 0000000..f18a785
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_config_check.h
+@@ -0,0 +1,223 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++/**
++ * \file pal_crypto_config_check.h
++ *
++ * \brief Consistency checks for configuration options
++ *
++ */
++
++#ifndef _PAL_CRYPTO_CONFIG_CHECK_H_
++#define _PAL_CRYPTO_CONFIG_CHECK_H_
++
++#if defined(ARCH_TEST_RSA_1024) && !defined(ARCH_TEST_RSA)
++#error "ARCH_TEST_RSA_1024 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RSA_2048) && !defined(ARCH_TEST_RSA)
++#error "ARCH_TEST_RSA_2048 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RSA_3072) && !defined(ARCH_TEST_RSA)
++#error "ARCH_TEST_RSA_3072 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECC_CURVE_SECP192R1) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECC_CURVE_SECP192R1 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECC_CURVE_SECP224R1) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECC_CURVE_SECP224R1 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECC_CURVE_SECP256R1) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECC_CURVE_SECP256R1 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECC_CURVE_SECP384R1) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECC_CURVE_SECP384R1 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_AES_128) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_AES_128 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_AES_256) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_AES_256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_AES_512) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_AES_512 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_DES_1KEY) && !defined(ARCH_TEST_DES)
++#error "ARCH_TEST_DES_1KEY defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_DES_2KEY) && !defined(ARCH_TEST_DES)
++#error "ARCH_TEST_DES_2KEY defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_DES_3KEY) && !defined(ARCH_TEST_DES)
++#error "ARCH_TEST_DES_3KEY defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CIPER_MODE_CTR) && !defined(ARCH_TEST_CIPER)
++#error "ARCH_TEST_CIPER_MODE_CTR defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CIPER_MODE_CFB) && !defined(ARCH_TEST_CIPER)
++#error "ARCH_TEST_CIPER_MODE_CFB defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CIPER_MODE_CBC) && !defined(ARCH_TEST_CIPER)
++#error "ARCH_TEST_CIPER_MODE_CBC defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CTR_AES) &&\
++    (!defined(ARCH_TEST_CIPER) || !defined(ARCH_TEST_AES) || !defined(ARCH_TEST_CIPER_MODE_CTR))
++#error "ARCH_TEST_CTR_AES defined, but not all prerequisites"
++#endif
++
++#if (defined(ARCH_TEST_CBC_AES)|| defined(ARCH_TEST_CBC_AES_NO_PADDING)) &&\
++    (!defined(ARCH_TEST_CIPER) || !defined(ARCH_TEST_AES) || !defined(ARCH_TEST_CIPER_MODE_CBC))
++#error "ARCH_TEST_CBC_AES defined, but not all prerequisites"
++#endif
++
++#if (defined(ARCH_TEST_CBC_NO_PADDING)) &&\
++    (!defined(ARCH_TEST_CIPER) ||!defined(ARCH_TEST_CIPER_MODE_CBC))
++#error "ARCH_TEST_CBC_NO_PADDING defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CFB_AES) &&\
++    (!defined(ARCH_TEST_CIPER) || !defined(ARCH_TEST_AES) || !defined(ARCH_TEST_CIPER_MODE_CFB))
++#error "ARCH_TEST_CFB_AES defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RSA_PKCS1V15_SIGN) &&\
++    (!defined(ARCH_TEST_RSA) || !defined(ARCH_TEST_PKCS1V15))
++#error "ARCH_TEST_RSA_PKCS1V15_SIGN defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RSA_PKCS1V15_SIGN_RAW) &&\
++    (!defined(ARCH_TEST_RSA) || !defined(ARCH_TEST_PKCS1V15))
++#error "ARCH_TEST_RSA_PKCS1V15_SIGN_RAW defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RSA_PKCS1V15_CRYPT) &&\
++    (!defined(ARCH_TEST_RSA) || !defined(ARCH_TEST_PKCS1V15))
++#error "ARCH_TEST_RSA_PKCS1V15_CRYPT defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CBC_PKCS7) && !defined(ARCH_TEST_CIPER_MODE_CBC)
++#error "ARCH_TEST_CBC_PKCS7 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_HMAC) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_HMAC defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_MD2) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_MD2 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_MD4) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_MD4 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_MD5) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_MD5 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_RIPEMD160) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_RIPEMD160 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA1) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA1 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA224) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA224 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA256) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA512) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA512 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA512_224) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA512_224 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA512_256) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA512_256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA3_224) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA3_224 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA3_256) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA3_256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA3_384) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA3_256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_SHA3_512) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_SHA3_256 defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_HKDF) && !defined(ARCH_TEST_HASH)
++#error "ARCH_TEST_HKDF defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CMAC) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_CMAC defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_GMAC) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_GMAC defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_HMAC) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_HMAC defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_CCM) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_CCM defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_GCM) && !defined(ARCH_TEST_AES)
++#error "ARCH_TEST_GCM defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECDH) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECDH defined, but not all prerequisites"
++#endif
++
++#if defined(ARCH_TEST_ECDSA) && !defined(ARCH_TEST_ECC)
++#error "ARCH_TEST_ECDSA defined, but not all prerequisites"
++#endif
++
++#endif /* _PAL_CRYPTO_CONFIG_CHECK_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_empty_intf.c b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_empty_intf.c
+new file mode 100644
+index 0000000..2a28f39
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_empty_intf.c
+@@ -0,0 +1,30 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include <stdarg.h>
++#include "pal_common.h"
++
++/**
++    @brief    - This API will call the requested crypto function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++int32_t pal_crypto_function(int type, va_list valist)
++{
++    return PAL_STATUS_ERROR;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.c b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.c
+new file mode 100644
+index 0000000..3df6aa8
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.c
+@@ -0,0 +1,340 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++
++#include "pal_crypto_intf.h"
++
++#define  PAL_KEY_SLOT_COUNT  32
++
++/**
++    @brief    - This API will call the requested crypto function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++int32_t pal_crypto_function(int type, va_list valist)
++{
++    int                     i;
++    size_t                  size, *length, salt_length, label_length, ciphertext_size;
++    uint8_t                 *buffer, *ciphertext;
++    const uint8_t           *salt, *label, *nonce, *additional_data;
++    uint8_t                 *plaintext;
++    uint32_t                status;
++    const void              *extra;
++    size_t                  extra_size, capacity, *gen_cap, nonce_length, additional_data_length;
++    psa_key_handle_t        handle, *key_handle, target_handle;
++    psa_key_type_t          key_type, *key_type_out;
++    psa_key_policy_t        *policy;
++    psa_key_usage_t         usage, *usage_out;
++    psa_key_lifetime_t      *lifetime_out;
++    psa_algorithm_t         alg, *alg_out;
++    psa_hash_operation_t    *hash_operation;
++    psa_mac_operation_t     *mac_operation;
++    psa_cipher_operation_t  *cipher_operation;
++    psa_crypto_generator_t  *generator;
++
++    switch (type)
++    {
++        case PAL_CRYPTO_INIT:
++            return psa_crypto_init();
++        case PAL_CRYPTO_GENERATE_RANDOM:
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, int);
++            return psa_generate_random(buffer, size);
++        case PAL_CRYPTO_IMPORT_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            key_type = va_arg(valist, psa_key_type_t);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, int);
++            status = psa_import_key(handle, key_type, buffer, size);
++            return status;
++        case PAL_CRYPTO_EXPORT_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            buffer = (uint8_t *)(va_arg(valist, uint8_t*));
++            size = va_arg(valist, int);
++            length = (size_t *)va_arg(valist, size_t*);
++            status = psa_export_key(handle, buffer, size, length);
++            return status;
++        case PAL_CRYPTO_EXPORT_PUBLIC_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            buffer = (uint8_t *)(va_arg(valist, uint8_t*));
++            size = va_arg(valist, int);
++            length = (size_t *)va_arg(valist, size_t*);
++            status = psa_export_public_key(handle, buffer, size, length);
++            return status;
++        case PAL_CRYPTO_KEY_POLICY_INIT:
++            policy = va_arg(valist, psa_key_policy_t*);
++            memset(policy, 0, sizeof(psa_key_policy_t));
++            return 0;
++        case PAL_CRYPTO_KEY_POLICY_SET_USAGE:
++            policy = va_arg(valist, psa_key_policy_t*);
++            usage = va_arg(valist, psa_key_usage_t);
++            alg = va_arg(valist, psa_algorithm_t);
++            psa_key_policy_set_usage(policy, usage, alg);
++            return 0;
++        case PAL_CRYPTO_SET_KEY_POLICY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            policy = va_arg(valist, psa_key_policy_t*);
++            return psa_set_key_policy(handle, policy);
++        case PAL_CRYPTO_DESTROY_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            status = psa_destroy_key(handle);
++            return status;
++        case PAL_CRYPTO_GET_KEY_INFORMATION:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            key_type_out = va_arg(valist, psa_key_type_t*);
++            length = (size_t *)va_arg(valist, size_t*);
++            status = psa_get_key_information(handle, key_type_out, length);
++            return status;
++        case PAL_CRYPTO_GET_KEY_POLICY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            policy = va_arg(valist, psa_key_policy_t*);
++            return psa_get_key_policy(handle, policy);
++        case PAL_CRYPTO_KEY_POLICY_GET_USAGE:
++            policy = va_arg(valist, psa_key_policy_t*);
++            usage_out = va_arg(valist, psa_key_usage_t*);
++            *usage_out = psa_key_policy_get_usage(policy);
++            return 0;
++        case PAL_CRYPTO_KEY_POLICY_GET_ALGORITHM:
++            policy = va_arg(valist, psa_key_policy_t*);
++            alg_out = va_arg(valist, psa_algorithm_t*);
++            *alg_out = psa_key_policy_get_algorithm(policy);
++            return 0;
++        case PAL_CRYPTO_GET_KEY_LIFETIME:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            lifetime_out = va_arg(valist, psa_key_lifetime_t*);
++            return psa_get_key_lifetime(handle, lifetime_out);
++        case PAL_CRYPTO_HASH_SETUP:
++            hash_operation = va_arg(valist, psa_hash_operation_t*);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_hash_setup(hash_operation, alg);
++        case PAL_CRYPTO_HASH_UPDATE:
++            hash_operation = va_arg(valist, psa_hash_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            return psa_hash_update(hash_operation, buffer, size);
++        case PAL_CRYPTO_HASH_VERIFY:
++            hash_operation = va_arg(valist, psa_hash_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            return psa_hash_verify(hash_operation, buffer, size);
++        case PAL_CRYPTO_HASH_FINISH:
++            hash_operation = va_arg(valist, psa_hash_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_hash_finish(hash_operation, buffer, size, length);
++        case PAL_CRYPTO_HASH_ABORT:
++            hash_operation = va_arg(valist, psa_hash_operation_t*);
++            return psa_hash_abort(hash_operation);
++        case PAL_CRYPTO_GENERATE_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            key_type = va_arg(valist, psa_key_type_t);
++            size     = va_arg(valist, size_t);
++            extra    = va_arg(valist, const void*);
++            extra_size  = va_arg(valist, size_t);
++            return psa_generate_key(handle, key_type, size, extra, extra_size);
++        case PAL_CRYPTO_GENERATOR_READ:
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, int);
++            return psa_generator_read(generator, buffer, size);
++        case PAL_CRYPTO_KEY_DERIVATION:
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            salt = va_arg(valist, const uint8_t *);
++            salt_length = va_arg(valist, size_t);
++            label = va_arg(valist, const uint8_t *);
++            label_length = va_arg(valist, size_t);
++            capacity = va_arg(valist, size_t);
++            return psa_key_derivation(generator, handle, alg, salt, salt_length, label,
++                                                                  label_length, capacity);
++        case PAL_CRYPTO_GET_GENERATOR_CAPACITY:
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            gen_cap   = va_arg(valist, size_t*);
++            return psa_get_generator_capacity(generator, gen_cap);
++        case PAL_CRYPTO_GENERATOR_IMPORT_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            key_type = va_arg(valist, psa_key_type_t);
++            size     = va_arg(valist, size_t);
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            return psa_generator_import_key(handle, key_type, size, generator);
++        case PAL_CRYPTO_GENERATOR_ABORT:
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            return psa_generator_abort(generator);
++        case PAL_CRYPTO_AEAD_ENCRYPT:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            nonce = va_arg(valist, const uint8_t *);
++            nonce_length = va_arg(valist, size_t);
++            additional_data = va_arg(valist, const uint8_t *);
++            additional_data_length = va_arg(valist, size_t);
++            plaintext = va_arg(valist, uint8_t *);
++            size = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_aead_encrypt(handle, alg, nonce, nonce_length, additional_data,
++                    additional_data_length, plaintext, size, ciphertext, ciphertext_size, length);
++        case PAL_CRYPTO_AEAD_DECRYPT:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            nonce = va_arg(valist, const uint8_t *);
++            nonce_length = va_arg(valist, size_t);
++            additional_data = va_arg(valist, const uint8_t *);
++            additional_data_length = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            plaintext = va_arg(valist, uint8_t *);
++            size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_aead_decrypt(handle, alg, nonce, nonce_length, additional_data,
++                    additional_data_length, ciphertext, ciphertext_size, plaintext, size, length);
++        case PAL_CRYPTO_MAC_SIGN_SETUP:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_mac_sign_setup(mac_operation, handle, alg);
++        case PAL_CRYPTO_MAC_UPDATE:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            return psa_mac_update(mac_operation, buffer, size);
++        case PAL_CRYPTO_MAC_SIGN_FINISH:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            length = (size_t *)va_arg(valist, size_t*);
++            return psa_mac_sign_finish(mac_operation, buffer, size, length);
++        case PAL_CRYPTO_MAC_VERIFY_SETUP:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_mac_verify_setup(mac_operation, handle, alg);
++        case PAL_CRYPTO_MAC_VERIFY_FINISH:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            return psa_mac_verify_finish(mac_operation, buffer, size);
++        case PAL_CRYPTO_MAC_ABORT:
++            mac_operation = va_arg(valist, psa_mac_operation_t*);
++            return psa_mac_abort(mac_operation);
++        case PAL_CRYPTO_ASYMMTERIC_ENCRYPT:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            plaintext = va_arg(valist, uint8_t *);
++            size = va_arg(valist, size_t);
++            salt = va_arg(valist, const uint8_t *);
++            salt_length = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_asymmetric_encrypt(handle, alg, plaintext, size, salt, salt_length,
++                    ciphertext, ciphertext_size, length);
++        case PAL_CRYPTO_ASYMMTERIC_DECRYPT:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            plaintext = va_arg(valist, uint8_t *);
++            size = va_arg(valist, size_t);
++            salt = va_arg(valist, const uint8_t *);
++            salt_length = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_asymmetric_decrypt(handle, alg, plaintext, size, salt, salt_length,
++                    ciphertext, ciphertext_size, length);
++        case PAL_CRYPTO_CIPHER_ENCRYPT_SETUP:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_cipher_encrypt_setup(cipher_operation, handle, alg);
++        case PAL_CRYPTO_CIPHER_DECRYPT_SETUP:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_cipher_decrypt_setup(cipher_operation, handle, alg);
++        case PAL_CRYPTO_CIPHER_GENERATE_IV:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_cipher_generate_iv(cipher_operation, buffer, size, length);
++        case PAL_CRYPTO_CIPHER_SET_IV:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            return psa_cipher_set_iv(cipher_operation, buffer, size);
++        case PAL_CRYPTO_CIPHER_UPDATE:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            plaintext = va_arg(valist, uint8_t *);
++            size = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_cipher_update(cipher_operation, plaintext, size, ciphertext, ciphertext_size,
++                                     length);
++        case PAL_CRYPTO_CIPHER_FINISH:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_cipher_finish(cipher_operation, ciphertext, ciphertext_size, length);
++        case PAL_CRYPTO_CIPHER_ABORT:
++            cipher_operation =  va_arg(valist, psa_cipher_operation_t *);
++            return psa_cipher_abort(cipher_operation);
++        case PAL_CRYPTO_ASYMMTERIC_SIGN:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            length = va_arg(valist, size_t*);
++            return psa_asymmetric_sign(handle, alg, buffer, size, ciphertext, ciphertext_size,
++                                       length);
++        case PAL_CRYPTO_ASYMMTERIC_VERIFY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            alg = va_arg(valist, psa_algorithm_t);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            ciphertext = va_arg(valist, uint8_t *);
++            ciphertext_size = va_arg(valist, size_t);
++            return psa_asymmetric_verify(handle, alg, buffer, size, ciphertext, ciphertext_size);
++        case PAL_CRYPTO_KEY_AGREEMENT:
++            generator = va_arg(valist, psa_crypto_generator_t*);
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            buffer = va_arg(valist, uint8_t*);
++            size = va_arg(valist, size_t);
++            alg = va_arg(valist, psa_algorithm_t);
++            return psa_key_agreement(generator, handle, buffer, size, alg);
++        case PAL_CRYPTO_ALLOCATE_KEY:
++            key_handle = (psa_key_handle_t *)va_arg(valist, int*);
++            return psa_allocate_key(key_handle);
++        case PAL_CRYPTO_COPY_KEY:
++            handle = (psa_key_handle_t)va_arg(valist, int);
++            target_handle = (psa_key_handle_t)va_arg(valist, int);
++            policy = va_arg(valist, psa_key_policy_t*);
++            return psa_copy_key(handle, target_handle, policy);
++        case PAL_CRYPTO_FREE:
++            for (i = 0; i < PAL_KEY_SLOT_COUNT; i++)
++                psa_destroy_key(i);
++            return 0;
++        default:
++            return PAL_STATUS_UNSUPPORTED_FUNC;
++    }
++}
+diff --git a/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.h b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.h
+new file mode 100644
+index 0000000..d1dabfa
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/crypto/pal_crypto_intf.h
+@@ -0,0 +1,76 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_CRYPTO_H_
++#define _PAL_CRYPTO_H_
++
++#include "pal_common.h"
++
++enum crypto_function_code {
++    PAL_CRYPTO_INIT                     = 0x1,
++    PAL_CRYPTO_GENERATE_RANDOM          = 0x2,
++    PAL_CRYPTO_IMPORT_KEY               = 0x3,
++    PAL_CRYPTO_EXPORT_KEY               = 0x4,
++    PAL_CRYPTO_EXPORT_PUBLIC_KEY        = 0x5,
++    PAL_CRYPTO_DESTROY_KEY              = 0x6,
++    PAL_CRYPTO_GET_KEY_INFO             = 0x7,
++    PAL_CRYPTO_KEY_POLICY_INIT          = 0x8,
++    PAL_CRYPTO_KEY_POLICY_SET_USAGE     = 0x9,
++    PAL_CRYPTO_KEY_POLICY_GET_USAGE     = 0xA,
++    PAL_CRYPTO_KEY_POLICY_GET_ALGORITHM = 0xB,
++    PAL_CRYPTO_SET_KEY_POLICY           = 0xC,
++    PAL_CRYPTO_GET_KEY_POLICY           = 0xD,
++    PAL_CRYPTO_GET_KEY_INFORMATION      = 0xE,
++    PAL_CRYPTO_GET_KEY_LIFETIME         = 0xF,
++    PAL_CRYPTO_HASH_SETUP               = 0x11,
++    PAL_CRYPTO_HASH_UPDATE              = 0x12,
++    PAL_CRYPTO_HASH_VERIFY              = 0x13,
++    PAL_CRYPTO_HASH_FINISH              = 0x14,
++    PAL_CRYPTO_HASH_ABORT               = 0x15,
++    PAL_CRYPTO_GENERATE_KEY             = 0x16,
++    PAL_CRYPTO_GENERATOR_READ           = 0x17,
++    PAL_CRYPTO_KEY_DERIVATION           = 0x18,
++    PAL_CRYPTO_GET_GENERATOR_CAPACITY   = 0x19,
++    PAL_CRYPTO_GENERATOR_IMPORT_KEY     = 0x1A,
++    PAL_CRYPTO_GENERATOR_ABORT          = 0x1B,
++    PAL_CRYPTO_AEAD_ENCRYPT             = 0x1C,
++    PAL_CRYPTO_AEAD_DECRYPT             = 0x1D,
++    PAL_CRYPTO_MAC_SIGN_SETUP           = 0x1E,
++    PAL_CRYPTO_MAC_UPDATE               = 0x1F,
++    PAL_CRYPTO_MAC_SIGN_FINISH          = 0x20,
++    PAL_CRYPTO_MAC_VERIFY_SETUP         = 0x21,
++    PAL_CRYPTO_MAC_VERIFY_FINISH        = 0x22,
++    PAL_CRYPTO_MAC_ABORT                = 0x23,
++    PAL_CRYPTO_ASYMMTERIC_ENCRYPT       = 0x24,
++    PAL_CRYPTO_ASYMMTERIC_DECRYPT       = 0x25,
++    PAL_CRYPTO_CIPHER_ENCRYPT_SETUP     = 0x26,
++    PAL_CRYPTO_CIPHER_DECRYPT_SETUP     = 0x2A,
++    PAL_CRYPTO_CIPHER_GENERATE_IV       = 0x2B,
++    PAL_CRYPTO_CIPHER_SET_IV            = 0x2C,
++    PAL_CRYPTO_CIPHER_UPDATE            = 0x2D,
++    PAL_CRYPTO_CIPHER_FINISH            = 0x2E,
++    PAL_CRYPTO_CIPHER_ABORT             = 0x2F,
++    PAL_CRYPTO_ASYMMTERIC_SIGN          = 0x30,
++    PAL_CRYPTO_ASYMMTERIC_VERIFY        = 0x31,
++    PAL_CRYPTO_KEY_AGREEMENT            = 0x32,
++    PAL_CRYPTO_ALLOCATE_KEY             = 0x33,
++    PAL_CRYPTO_COPY_KEY                 = 0x34,
++    PAL_CRYPTO_FREE                     = 0xFE,
++};
++
++int32_t pal_crypto_function(int type, va_list valist);
++#endif /* _PAL_CRYPTO_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.c b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.c
+new file mode 100644
+index 0000000..ae2bdba
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.c
+@@ -0,0 +1,346 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_attestation_crypto.h"
++
++static uint32_t  public_key_registered = 0;
++
++static inline struct q_useful_buf_c useful_buf_head(struct q_useful_buf_c buf,
++                                                  size_t amount)
++{
++    return UsefulBuf_Head(buf, amount);
++}
++
++static uint32_t check_hash_sizes(void)
++{
++    if (T_COSE_CRYPTO_SHA256_SIZE != PSA_HASH_SIZE(PSA_ALG_SHA_256))
++    {
++        return PAL_ATTEST_HASH_FAIL;
++    }
++
++    return PAL_ATTEST_SUCCESS;
++}
++
++static psa_ecc_curve_t attest_map_elliptic_curve_type(int32_t cose_curve)
++{
++    psa_ecc_curve_t psa_curve;
++
++    /*FixMe: Mapping is not complete, missing ones: P384, P521, ED25519, ED448 */
++    switch (cose_curve)
++    {
++    case P_256:
++        psa_curve = PSA_ECC_CURVE_SECP256R1;
++        break;
++    default:
++        psa_curve = USHRT_MAX;
++    }
++
++    return psa_curve;
++}
++
++static psa_algorithm_t cose_hash_alg_id_to_psa(int32_t cose_hash_alg_id)
++{
++    psa_algorithm_t status;
++
++    switch (cose_hash_alg_id)
++    {
++    case COSE_ALG_SHA256_PROPRIETARY:
++        status = PSA_ALG_SHA_256;
++        break;
++    default:
++        status = PSA_ALG_MD4;
++        break;
++    }
++
++    return status;
++}
++
++static int32_t hash_alg_id_from_sig_alg_id(int32_t cose_sig_alg_id)
++{
++    switch (cose_sig_alg_id)
++    {
++        case COSE_ALGORITHM_ES256:
++            return COSE_ALG_SHA256_PROPRIETARY;
++        default:
++            return INT32_MAX;
++    }
++}
++
++int32_t pal_cose_crypto_hash_start(struct pal_cose_crypto_hash *hash_ctx, int32_t cose_hash_alg_id)
++{
++    int32_t                          cose_ret = PAL_ATTEST_SUCCESS;
++    psa_status_t                     psa_ret;
++    struct pal_cose_psa_crypto_hash *psa_hash_ctx;
++
++    cose_ret = check_hash_sizes();
++    if (cose_ret)
++    {
++        goto error;
++    }
++
++    if (sizeof(struct pal_cose_crypto_hash) < sizeof(struct pal_cose_psa_crypto_hash))
++    {
++        cose_ret = PAL_ATTEST_HASH_FAIL;
++        goto error;
++    }
++
++    psa_hash_ctx = (struct pal_cose_psa_crypto_hash *)hash_ctx;
++    psa_ret = psa_hash_setup(&psa_hash_ctx->operation, cose_hash_alg_id_to_psa(cose_hash_alg_id));
++
++    if (psa_ret == PAL_ATTEST_SUCCESS)
++    {
++        psa_hash_ctx->status = PAL_ATTEST_SUCCESS;
++        cose_ret = PAL_ATTEST_SUCCESS;
++    }
++    else if (psa_ret == PSA_ERROR_NOT_SUPPORTED)
++    {
++        cose_ret = PAL_ATTEST_HASH_UNSUPPORTED;
++    }
++    else
++    {
++        cose_ret = PAL_ATTEST_HASH_FAIL;
++    }
++
++error:
++    return cose_ret;
++}
++
++void pal_cose_crypto_hash_update(struct pal_cose_crypto_hash *hash_ctx,
++                                 struct q_useful_buf_c data_to_hash)
++{
++    struct pal_cose_psa_crypto_hash *psa_hash_ctx;
++
++    if (sizeof(struct pal_cose_crypto_hash) < sizeof(struct pal_cose_psa_crypto_hash))
++    {
++        return;
++    }
++
++    psa_hash_ctx = (struct pal_cose_psa_crypto_hash *)hash_ctx;
++
++    if (psa_hash_ctx->status == PAL_ATTEST_SUCCESS)
++    {
++        if (data_to_hash.ptr != NULL)
++        {
++            psa_hash_ctx->status = psa_hash_update(&psa_hash_ctx->operation,
++                                                   data_to_hash.ptr,
++                                                   data_to_hash.len);
++        }
++        else
++        {
++            /* Intentionally do nothing, just computing the size of the token */
++        }
++    }
++}
++
++int32_t pal_cose_crypto_hash_finish(struct pal_cose_crypto_hash *hash_ctx,
++                                    struct q_useful_buf buffer_to_hold_result,
++                                    struct q_useful_buf_c *hash_result)
++{
++    uint32_t                         cose_ret = PAL_ATTEST_SUCCESS;
++    psa_status_t                     psa_ret;
++    struct pal_cose_psa_crypto_hash *psa_hash_ctx;
++
++    if (sizeof(struct pal_cose_crypto_hash) < sizeof(struct pal_cose_psa_crypto_hash))
++    {
++        cose_ret = PAL_ATTEST_HASH_FAIL;
++        goto error;
++    }
++
++    psa_hash_ctx = (struct pal_cose_psa_crypto_hash *)hash_ctx;
++
++    if (psa_hash_ctx->status == PAL_ATTEST_SUCCESS)
++    {
++        psa_ret = psa_hash_finish(&psa_hash_ctx->operation,
++                                  buffer_to_hold_result.ptr,
++                                  buffer_to_hold_result.len,
++                                  &(hash_result->len));
++
++        if (psa_ret == PAL_ATTEST_SUCCESS)
++        {
++            hash_result->ptr = buffer_to_hold_result.ptr;
++            cose_ret = 0;
++        }
++        else if (psa_ret == PSA_ERROR_BUFFER_TOO_SMALL)
++        {
++            cose_ret = PAL_ATTEST_HASH_BUFFER_SIZE;
++        }
++        else
++        {
++            cose_ret = PAL_ATTEST_HASH_FAIL;
++        }
++    }
++    else
++    {
++        cose_ret = PAL_ATTEST_HASH_FAIL;
++    }
++
++error:
++    return cose_ret;
++}
++
++int pal_create_sha256(struct q_useful_buf_c bytes_to_hash, struct q_useful_buf buffer_for_hash,
++                      struct q_useful_buf_c *hash)
++{
++    uint32_t                      status = PAL_ATTEST_SUCCESS;
++    struct pal_cose_crypto_hash   hash_ctx;
++
++    status = pal_cose_crypto_hash_start(&hash_ctx, COSE_ALG_SHA256_PROPRIETARY);
++    if (status)
++        return status;
++
++    pal_cose_crypto_hash_update(&hash_ctx, bytes_to_hash);
++    status = pal_cose_crypto_hash_finish(&hash_ctx, buffer_for_hash, hash);
++
++    return status;
++}
++
++uint32_t pal_compute_hash(int32_t cose_alg_id, struct q_useful_buf buffer_for_hash,
++                          struct q_useful_buf_c *hash, struct q_useful_buf_c protected_headers,
++                          struct q_useful_buf_c payload)
++{
++    uint32_t                    status;
++    QCBOREncodeContext          cbor_encode_ctx;
++    struct q_useful_buf_c       tbs_first_part;
++    QCBORError                  qcbor_result;
++    struct pal_cose_crypto_hash hash_ctx = {{0}};
++    int32_t                     hash_alg_id;
++    UsefulBuf_MAKE_STACK_UB    (buffer_for_TBS_first_part, T_COSE_SIZE_OF_TBS);
++
++    /* This builds the CBOR-format to-be-signed bytes */
++    QCBOREncode_Init(&cbor_encode_ctx, buffer_for_TBS_first_part);
++    QCBOREncode_OpenArray(&cbor_encode_ctx);
++    /* context */
++    QCBOREncode_AddSZString(&cbor_encode_ctx,
++                            COSE_SIG_CONTEXT_STRING_SIGNATURE1);
++    /* body_protected */
++    QCBOREncode_AddBytes(&cbor_encode_ctx,
++                         protected_headers);
++    /* sign_protected */
++    QCBOREncode_AddBytes(&cbor_encode_ctx, NULL_USEFUL_BUF_C);
++    /* external_aad */
++    QCBOREncode_AddBytes(&cbor_encode_ctx, NULL_USEFUL_BUF_C);
++    /* fake payload */
++    QCBOREncode_AddBytes(&cbor_encode_ctx, NULL_USEFUL_BUF_C);
++    QCBOREncode_CloseArray(&cbor_encode_ctx);
++
++    /* Get the result and convert it to struct q_useful_buf_c representation */
++    qcbor_result = QCBOREncode_Finish(&cbor_encode_ctx, &tbs_first_part);
++    if (qcbor_result)
++    {
++        /* Mainly means that the protected_headers were too big
++         (which should never happen) */
++        status = PAL_ATTEST_ERR_SIGN_STRUCT;
++        goto Done;
++    }
++
++    /* Start the hashing */
++    hash_alg_id = hash_alg_id_from_sig_alg_id(cose_alg_id);
++
++    /* Don't check hash_alg_id for failure. pal_cose_crypto_hash_start()
++     * will handle it properly
++     */
++    status = pal_cose_crypto_hash_start(&hash_ctx, hash_alg_id);
++    if (status)
++        goto Done;
++
++    /* Hash the first part of the TBS. Take all but the last two
++     * bytes. The last two bytes are the fake payload from above. It
++     * is replaced by the real payload which is hashed next. The fake
++     * payload is needed so the array count is right. This is one of
++     * the main things that make it possible to implement with one
++     * buffer for the whole cose sign1.
++     */
++    pal_cose_crypto_hash_update(&hash_ctx, useful_buf_head(tbs_first_part,
++                                              tbs_first_part.len - 2));
++
++    /* Hash the payload */
++    pal_cose_crypto_hash_update(&hash_ctx, payload);
++
++    /* Finish the hash and set up to return it */
++    status = pal_cose_crypto_hash_finish(&hash_ctx,
++                                             buffer_for_hash,
++                                             hash);
++
++Done:
++    return status;
++}
++
++uint32_t pal_import_attest_key(int32_t alg)
++{
++    psa_key_type_t   attest_key_type;
++    size_t           public_key_size;
++    psa_status_t     status = PSA_SUCCESS;
++    psa_key_policy_t policy;
++    psa_ecc_curve_t  psa_curve;
++    psa_key_handle_t public_key_handle;
++
++    /* Mapping of COSE curve type to PSA curve types */
++    psa_curve = attest_map_elliptic_curve_type(P_256);
++    if (psa_curve == USHRT_MAX)
++        return PAL_ATTEST_ERROR;
++
++    /* Setup the key policy for public key */
++    policy = psa_key_policy_init();
++    psa_key_policy_set_usage(&policy, PSA_KEY_USAGE_VERIFY, alg);
++
++    status = psa_allocate_key(&public_key_handle);
++    if (status != PSA_SUCCESS)
++        return status;
++
++    status = psa_set_key_policy(public_key_handle, &policy);
++    if (status != PSA_SUCCESS)
++        return status;
++
++    attest_key_type = PSA_KEY_TYPE_ECC_PUBLIC_KEY(psa_curve);
++
++    /* Register public key to crypto service */
++    public_key_size = attest_key.pubx_key_size + attest_key.puby_key_size;
++
++    status = psa_import_key(public_key_handle,
++                                attest_key_type,
++                                (const uint8_t *)&attest_public_key,
++                                public_key_size + 1);
++
++    return status;
++}
++
++
++uint32_t pal_crypto_pub_key_verify(int32_t cose_algorithm_id,
++                                   struct q_useful_buf_c token_hash,
++                                   struct q_useful_buf_c signature)
++{
++    uint32_t status = PAL_ATTEST_SUCCESS;
++
++    if (!public_key_registered)
++    {
++        status = pal_import_attest_key(cose_algorithm_id);
++        if (status != PAL_ATTEST_SUCCESS)
++            return status;
++
++        public_key_registered = 1;
++    }
++
++/*
++ * Enable the verify function when Trusted Firmare - M Supports
++
++ *  Verify the signature a hash or short message using a public key.
++    status = psa_asymmetric_verify(public_key_handle,
++                                    cose_algorithm_id, token_hash.ptr, token_hash.len,
++                                    signature.ptr, signature.len);
++*/
++    return status;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.h b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.h
+new file mode 100644
+index 0000000..2d63ad1
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_crypto.h
+@@ -0,0 +1,102 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_common.h"
++#include "pal_attestation_eat.h"
++
++#define ATTEST_PUBLIC_KEY_SLOT            4
++
++typedef struct{
++    uint8_t  *pubx_key;
++    uint32_t  pubx_key_size;
++    uint8_t  *puby_key;
++    uint32_t  puby_key_size;
++} ecc_key_t;
++
++struct ecc_public_key_t {
++    const uint8_t a;
++    uint8_t public_key[]; /* X-coordinate || Y-coordinate */
++};
++
++static const struct ecc_public_key_t attest_public_key = {
++     /* Constant byte */
++     0x04,
++     /* X-coordinate */
++     {0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++      0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
++      0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
++      0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F,
++     /* Y-coordinate */
++      0xBF, 0xCD, 0xFA, 0x89, 0x56, 0xB5, 0x68, 0xBF,
++      0xDB, 0x86, 0x73, 0xE6, 0x48, 0xD8, 0xB5, 0x8D,
++      0x92, 0x99, 0x55, 0xB1, 0x4A, 0x26, 0xC3, 0x08,
++      0x0F, 0x34, 0x11, 0x7D, 0x97, 0x1D, 0x68, 0x64},
++};
++
++struct pal_cose_crypto_hash {
++    /* Can't put the actual size here without creating dependecy on
++     * actual hash implementation, so this is a fairly large and
++     * accommodating size.
++     */
++    uint8_t bytes[128];
++};
++
++struct pal_cose_psa_crypto_hash {
++    psa_status_t         status;
++    psa_hash_operation_t operation;
++};
++
++static const uint8_t initial_attestation_public_x_key[] =
++{
++    0x79, 0xEB, 0xA9, 0x0E, 0x8B, 0xF4, 0x50, 0xA6,
++    0x75, 0x15, 0x76, 0xAD, 0x45, 0x99, 0xB0, 0x7A,
++    0xDF, 0x93, 0x8D, 0xA3, 0xBB, 0x0B, 0xD1, 0x7D,
++    0x00, 0x36, 0xED, 0x49, 0xA2, 0xD0, 0xFC, 0x3F
++};
++
++static const uint8_t initial_attestation_public_y_key[] =
++{
++    0xBF, 0xCD, 0xFA, 0x89, 0x56, 0xB5, 0x68, 0xBF,
++    0xDB, 0x86, 0x73, 0xE6, 0x48, 0xD8, 0xB5, 0x8D,
++    0x92, 0x99, 0x55, 0xB1, 0x4A, 0x26, 0xC3, 0x08,
++    0x0F, 0x34, 0x11, 0x7D, 0x97, 0x1D, 0x68, 0x64
++};
++
++/* Initialize the structure with given public key */
++static const ecc_key_t attest_key = {
++        (uint8_t *)initial_attestation_public_x_key,
++        sizeof(initial_attestation_public_x_key),
++        (uint8_t *)initial_attestation_public_y_key,
++        sizeof(initial_attestation_public_y_key)
++};
++
++int32_t pal_cose_crypto_hash_start(struct pal_cose_crypto_hash *hash_ctx, int32_t cose_hash_alg_id);
++void pal_cose_crypto_hash_update(struct pal_cose_crypto_hash *hash_ctx,
++                                 struct q_useful_buf_c data_to_hash);
++int32_t pal_cose_crypto_hash_finish(struct pal_cose_crypto_hash *hash_ctx,
++                                    struct q_useful_buf buffer_to_hold_result,
++                                    struct q_useful_buf_c *hash_result);
++int pal_create_sha256(struct q_useful_buf_c bytes_to_hash, struct q_useful_buf buffer_for_hash,
++                      struct q_useful_buf_c *hash);
++uint32_t pal_compute_hash(int32_t cose_alg_id, struct q_useful_buf buffer_for_hash,
++                          struct q_useful_buf_c *hash, struct q_useful_buf_c protected_headers,
++                          struct q_useful_buf_c payload);
++uint32_t pal_import_attest_key(int32_t alg);
++uint32_t pal_crypto_pub_key_verify(int32_t cose_algorithm_id, struct q_useful_buf_c token_hash,
++                                   struct q_useful_buf_c signature);
++
++
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.c b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.c
+new file mode 100644
+index 0000000..178fdc9
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.c
+@@ -0,0 +1,491 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "pal_attestation_crypto.h"
++
++uint32_t    mandatory_claims = 0;
++uint32_t    mandaroty_sw_components = 0;
++bool_t      sw_component_present = 0;
++
++static int pal_encode_cose_key(struct q_useful_buf_c *cose_key,
++                               struct q_useful_buf buffer_for_cose_key,
++                               struct q_useful_buf_c x_cord, struct q_useful_buf_c y_cord)
++{
++    uint32_t                  return_value;
++    QCBORError                qcbor_result;
++    QCBOREncodeContext        cbor_encode_ctx;
++    int32_t                   cose_curve_id = P_256;
++    struct q_useful_buf_c       encoded_key_id;
++
++    /* Get the public key x and y */
++    /* Encode it into a COSE_Key structure */
++    QCBOREncode_Init(&cbor_encode_ctx, buffer_for_cose_key);
++    QCBOREncode_OpenMap(&cbor_encode_ctx);
++    QCBOREncode_AddInt64ToMapN(&cbor_encode_ctx,
++                               COSE_KEY_COMMON_KTY,
++                               COSE_KEY_TYPE_EC2);
++    QCBOREncode_AddInt64ToMapN(&cbor_encode_ctx,
++                               COSE_KEY_PARAM_CRV,
++                               cose_curve_id);
++    QCBOREncode_AddBytesToMapN(&cbor_encode_ctx,
++                               COSE_KEY_PARAM_X_COORDINATE,
++                               x_cord);
++    QCBOREncode_AddBytesToMapN(&cbor_encode_ctx,
++                               COSE_KEY_PARAM_Y_COORDINATE,
++                               y_cord);
++    QCBOREncode_CloseMap(&cbor_encode_ctx);
++
++    qcbor_result = QCBOREncode_Finish(&cbor_encode_ctx, &encoded_key_id);
++    if (qcbor_result != QCBOR_SUCCESS)
++    {
++        /* Mainly means that the COSE_Key was too big for buffer_for_cose_key */
++        return_value = PAL_ATTEST_ERR_PROTECTED_HEADERS;
++        goto Done;
++    }
++
++    /* Finish up and return */
++    *cose_key = encoded_key_id;
++    return_value = PAL_ATTEST_SUCCESS;
++
++Done:
++    return return_value;
++}
++
++
++static int get_items_in_map(QCBORDecodeContext *decode_context,
++                            struct items_to_get_t *item_list)
++{
++    int                     item_index;
++    QCBORItem               item;
++    struct items_to_get_t  *item_ptr = item_list;
++
++    /* initialize the data type of all items in the list */
++    while (item_ptr->label != 0)
++    {
++        item_ptr->item.uDataType = QCBOR_TYPE_NONE;
++        item_ptr++;
++    }
++
++    QCBORDecode_GetNext(decode_context, &item);
++    if (item.uDataType != QCBOR_TYPE_MAP)
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    for (item_index = item.val.uCount; item_index != 0; item_index--)
++    {
++        if (QCBORDecode_GetNext(decode_context, &item) != QCBOR_SUCCESS)
++        {
++            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++        }
++        if (item.uLabelType != QCBOR_TYPE_INT64)
++        {
++            continue;
++        }
++
++        item_ptr = item_list;
++        while (item_ptr->label != 0)
++        {
++            if (item.label.int64 == item_ptr->label)
++            {
++                item_ptr->item = item;
++            }
++            item_ptr++;
++        }
++    }
++
++    return PAL_ATTEST_SUCCESS;
++}
++
++static int get_item_in_map(QCBORDecodeContext *decode_context,
++                           int32_t label,
++                           QCBORItem *item)
++{
++    struct items_to_get_t   item_list[2];
++
++    item_list[0].label = label;
++    item_list[1].label = 0;
++
++    if (get_items_in_map(decode_context, item_list))
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    if (item_list[0].item.uDataType == QCBOR_TYPE_NONE)
++    {
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++    }
++
++    *item = item_list[0].item;
++
++    return PAL_ATTEST_SUCCESS;
++}
++
++static int parse_unprotected_headers(QCBORDecodeContext *decode_context,
++                                     struct q_useful_buf_c *child,
++                                     bool *loop_back)
++{
++    struct items_to_get_t   item_list[3];
++
++    item_list[0].label = COSE_HEADER_PARAM_KID;
++    item_list[1].label = T_COSE_SHORT_CIRCUIT_LABEL;
++    item_list[2].label = 0;
++    *loop_back = false;
++
++    if (get_items_in_map(decode_context, item_list))
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    if (item_list[1].item.uDataType == QCBOR_TYPE_TRUE)
++    {
++        *loop_back = true;
++    }
++
++    if (item_list[0].item.uDataType != QCBOR_TYPE_BYTE_STRING)
++    {
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++    }
++
++    *child = item_list[0].item.val.string;
++
++    return PAL_ATTEST_SUCCESS;
++}
++
++static int parse_protected_headers(struct q_useful_buf_c protected_headers,
++                                   int32_t *alg_id)
++{
++    QCBORDecodeContext  decode_context;
++    QCBORItem           item;
++
++    QCBORDecode_Init(&decode_context, protected_headers, 0);
++
++    if (get_item_in_map(&decode_context, COSE_HEADER_PARAM_ALG, &item))
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    if (QCBORDecode_Finish(&decode_context))
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    if ((item.uDataType != QCBOR_TYPE_INT64) || (item.val.int64 > INT32_MAX))
++    {
++        return PAL_ATTEST_ERROR;
++    }
++
++    *alg_id = (int32_t)item.val.int64;
++
++    return PAL_ATTEST_SUCCESS;
++}
++
++/**
++    @brief    - This API will verify the claims
++    @param    - decode_context      : The buffer containing the challenge
++                item                : context for decoding the data items
++                completed_challenge : Buffer containing the challenge
++    @return   - error status
++**/
++static int parse_claims(QCBORDecodeContext *decode_context, QCBORItem item,
++                                   struct q_useful_buf_c completed_challenge)
++{
++    int i, count = 0;
++    int status = PAL_ATTEST_SUCCESS;
++
++    /* Parse each claim and validate their data type */
++    while (status == PAL_ATTEST_SUCCESS)
++    {
++        status = QCBORDecode_GetNext(decode_context, &item);
++        if (status != PAL_ATTEST_SUCCESS)
++            break;
++
++        mandatory_claims |= 1 << (EAT_CBOR_ARM_RANGE_BASE - item.label.int64);
++        if (item.uLabelType == QCBOR_TYPE_INT64)
++        {
++            if (item.label.int64 == EAT_CBOR_ARM_LABEL_NONCE)
++            {
++                if (item.uDataType == QCBOR_TYPE_BYTE_STRING)
++                {
++                    /* Given challenge vs challenge in token */
++                    if (UsefulBuf_Compare(item.val.string, completed_challenge))
++                        return PAL_ATTEST_TOKEN_CHALLENGE_MISMATCH;
++                }
++                else
++                    return PAL_ATTEST_TOKEN_NOT_SUPPORTED;
++            }
++            else if (item.label.int64 == EAT_CBOR_ARM_LABEL_BOOT_SEED ||
++                     item.label.int64 == EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID ||
++                     item.label.int64 == EAT_CBOR_ARM_LABEL_UEID)
++            {
++                if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++                    return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++            }
++            else if (item.label.int64 == EAT_CBOR_ARM_LABEL_ORIGINATION ||
++                     item.label.int64 == EAT_CBOR_ARM_LABEL_PROFILE_DEFINITION ||
++                     item.label.int64 == EAT_CBOR_ARM_LABEL_HW_VERSION)
++            {
++                if (item.uDataType != QCBOR_TYPE_TEXT_STRING)
++                    return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++            }
++            else if (item.label.int64 == EAT_CBOR_ARM_LABEL_CLIENT_ID ||
++                     item.label.int64 == EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE)
++            {
++                if (item.uDataType != QCBOR_TYPE_INT64)
++                    return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++            }
++            else if (item.label.int64 == EAT_CBOR_ARM_LABEL_SW_COMPONENTS)
++            {
++                if (item.uDataType != QCBOR_TYPE_ARRAY)
++                    return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++                sw_component_present = 1;
++                status = QCBORDecode_GetNext(decode_context, &item);
++                if (status != PAL_ATTEST_SUCCESS)
++                    continue;
++
++                count = item.val.uCount;
++                for (i = 0; i <= count; i++)
++                {
++                    mandaroty_sw_components |= 1 << item.label.int64;
++
++                    if (item.label.int64 == EAT_CBOR_SW_COMPONENT_MEASUREMENT)
++                    {
++                         if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                    else if (item.label.int64 == EAT_CBOR_SW_COMPONENT_MEASUREMENT_DESC)
++                    {
++                        if (item.uDataType != QCBOR_TYPE_TEXT_STRING)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                    else if (item.label.int64 == EAT_CBOR_SW_COMPONENT_VERSION)
++                    {
++                        if (item.uDataType != QCBOR_TYPE_TEXT_STRING)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                    else if (item.label.int64 == EAT_CBOR_SW_COMPONENT_SIGNER_ID)
++                    {
++                        if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                    else if (item.label.int64 == EAT_CBOR_SW_COMPONENT_EPOCH)
++                    {
++                        if (item.uDataType != QCBOR_TYPE_INT64)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                    else if (item.label.int64 == EAT_CBOR_SW_COMPONENT_TYPE)
++                    {
++                        if (item.uDataType != QCBOR_TYPE_TEXT_STRING)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++
++                    if (i < count)
++                    {
++                        status = QCBORDecode_GetNext(decode_context, &item);
++                        if (status != PAL_ATTEST_SUCCESS)
++                            return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++                    }
++                }
++
++            }
++        }
++        else
++        {
++            /* ToDo: Add other claim types */
++        }
++    }
++
++    if (status == QCBOR_ERR_HIT_END)
++        return PAL_ATTEST_SUCCESS;
++    else
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++}
++
++/**
++    @brief    - This API will verify the attestation token
++    @param    - challenge       : The buffer containing the challenge
++                challenge_size  : Size of the challenge buffer
++                token           : The buffer containing the attestation token
++                token_size      : Size of the token buffer
++    @return   - error status
++**/
++int32_t pal_initial_attest_verify_token(uint8_t *challenge, uint32_t challenge_size,
++                                        uint8_t *token, uint32_t token_size)
++{
++    int32_t             status = PAL_ATTEST_SUCCESS;
++    bool                short_circuit;
++    int32_t             cose_algorithm_id;
++    QCBORItem           item;
++    QCBORDecodeContext  decode_context;
++    struct q_useful_buf_c completed_challenge;
++    struct q_useful_buf_c completed_token;
++    struct q_useful_buf_c payload;
++    struct q_useful_buf_c signature;
++    struct q_useful_buf_c protected_headers;
++    struct q_useful_buf_c kid;
++    struct q_useful_buf_c x_cord;
++    struct q_useful_buf_c y_cord;
++    struct q_useful_buf_c cose_key_to_hash;
++    struct q_useful_buf_c key_hash;
++    struct q_useful_buf_c token_hash;
++    USEFUL_BUF_MAKE_STACK_UB(buf_to_hold_x_coord, T_COSE_CRYPTO_EC_P256_COORD_SIZE);
++    USEFUL_BUF_MAKE_STACK_UB(buf_to_hold_y_coord, T_COSE_CRYPTO_EC_P256_COORD_SIZE);
++    USEFUL_BUF_MAKE_STACK_UB(buffer_for_kid, T_COSE_CRYPTO_SHA256_SIZE);
++    USEFUL_BUF_MAKE_STACK_UB(buffer_for_cose_key, MAX_ENCODED_COSE_KEY_SIZE);
++    USEFUL_BUF_MAKE_STACK_UB(buffer_for_encoded_key, MAX_ENCODED_COSE_KEY_SIZE);
++    USEFUL_BUF_MAKE_STACK_UB(buffer_for_token_hash, T_COSE_CRYPTO_SHA256_SIZE);
++
++    kid.ptr = buffer_for_encoded_key.ptr;
++
++    memcpy(buf_to_hold_x_coord.ptr, (const void *)attest_key.pubx_key, attest_key.pubx_key_size);
++    memcpy(buf_to_hold_y_coord.ptr, (const void *)attest_key.puby_key, attest_key.puby_key_size);
++
++    /* Update size */
++    buf_to_hold_x_coord.len = attest_key.pubx_key_size;
++    buf_to_hold_y_coord.len = attest_key.puby_key_size;
++
++    x_cord.ptr = buf_to_hold_x_coord.ptr;
++    x_cord.len = buf_to_hold_x_coord.len;
++    y_cord.ptr = buf_to_hold_y_coord.ptr;
++    y_cord.len = buf_to_hold_y_coord.len;
++
++    /* Construct the token buffer for validation */
++    completed_token.ptr = token;
++    completed_token.len = token_size;
++
++    /* Construct the challenge buffer for validation */
++    completed_challenge.ptr = challenge;
++    completed_challenge.len = challenge_size;
++
++/*
++    -------------------------
++    |  CBOR Array Type      |
++    -------------------------
++    |  Protected Headers    |
++    -------------------------
++    |  Unprotected Headers  |
++    -------------------------
++    |  Payload              |
++    -------------------------
++    |  Signature            |
++    -------------------------
++*/
++
++    /* Initialize the decorder */
++    QCBORDecode_Init(&decode_context, completed_token, QCBOR_DECODE_MODE_NORMAL);
++
++    /* Get the Header */
++    QCBORDecode_GetNext(&decode_context, &item);
++
++    /* Check the CBOR Array type. Check if the count is 4.
++     * Only COSE_SIGN1 is supported now.
++     */
++    if (item.uDataType != QCBOR_TYPE_ARRAY || item.val.uCount != 4 ||
++       !QCBORDecode_IsTagged(&decode_context, &item, CBOR_TAG_COSE_SIGN1))
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++    /* Get the next headers */
++    QCBORDecode_GetNext(&decode_context, &item);
++    if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++    protected_headers = item.val.string;
++
++    /* Parse the protected headers and check the data type and value*/
++    status = parse_protected_headers(protected_headers, &cose_algorithm_id);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    /* Parse the unprotected headers and check the data type and value */
++    short_circuit = false;
++    status = parse_unprotected_headers(&decode_context, &kid, &short_circuit);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    /* Encode the given public key */
++    status = pal_encode_cose_key(&cose_key_to_hash, buffer_for_cose_key, x_cord, y_cord);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    /* Create hash of the given public key */
++    status = pal_create_sha256(cose_key_to_hash, buffer_for_kid, &key_hash);
++    if (status != PSA_SUCCESS)
++        return status;
++
++    /* Compare the hash of the public key in token and hash of the given public key */
++    if (kid.len != key_hash.len)
++    {
++        return PAL_ATTEST_HASH_LENGTH_MISMATCH;
++    }
++
++    if (memcmp(kid.ptr, key_hash.ptr, kid.len) != 0)
++    {
++        return PAL_ATTEST_HASH_MISMATCH;
++    }
++
++    /* Get the payload */
++    QCBORDecode_GetNext(&decode_context, &item);
++    if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++    payload = item.val.string;
++
++    /* Get the digital signature */
++    QCBORDecode_GetNext(&decode_context, &item);
++    if (item.uDataType != QCBOR_TYPE_BYTE_STRING)
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++    signature = item.val.string;
++
++    /* Compute the hash from the token */
++    status = pal_compute_hash(cose_algorithm_id, buffer_for_token_hash, &token_hash,
++                              protected_headers, payload);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    /* Verify the signature */
++    status = pal_crypto_pub_key_verify(cose_algorithm_id, token_hash, signature);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    /* Initialize the Decoder and validate the payload format */
++    QCBORDecode_Init(&decode_context, payload, QCBOR_DECODE_MODE_NORMAL);
++    status = QCBORDecode_GetNext(&decode_context, &item);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    if (item.uDataType != QCBOR_TYPE_MAP)
++        return PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING;
++
++    /* Parse the payload and check the data type of each claim */
++    status = parse_claims(&decode_context, item, completed_challenge);
++    if (status != PAL_ATTEST_SUCCESS)
++        return status;
++
++    if ((mandatory_claims & MANDATORY_CLAIM_WITH_SW_COMP) == MANDATORY_CLAIM_WITH_SW_COMP)
++    {
++        if ((mandaroty_sw_components & MANDATORY_SW_COMP) != MANDATORY_SW_COMP)
++            return PAL_ATTEST_TOKEN_NOT_ALL_MANDATORY_CLAIMS;
++    }
++    else if ((mandatory_claims & MANDATORY_CLAIM_NO_SW_COMP) != MANDATORY_CLAIM_NO_SW_COMP)
++    {
++        return PAL_ATTEST_TOKEN_NOT_ALL_MANDATORY_CLAIMS;
++    }
++
++    return PAL_ATTEST_SUCCESS;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.h b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.h
+new file mode 100644
+index 0000000..8a0c545
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_eat.h
+@@ -0,0 +1,170 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include "qcbor.h"
++#include "pal_common.h"
++#include "psa/crypto.h"
++
++#define PAL_ATTEST_MIN_ERROR              30
++
++/* NIST P-256 also known as secp256r1 */
++#define P_256                             1
++
++#define COSE_HEADER_PARAM_ALG             1
++#define COSE_HEADER_PARAM_KID             4
++
++#define COSE_KEY_COMMON_KTY               1
++#define COSE_KEY_TYPE_EC2                 2
++#define COSE_KEY_PARAM_CRV               -1
++#define COSE_KEY_PARAM_X_COORDINATE      -2
++#define COSE_KEY_PARAM_Y_COORDINATE      -3
++#define COSE_ALGORITHM_ES256             -7
++#define COSE_ALG_SHA256_PROPRIETARY      -72000
++
++/**
++ * The size of X and Y coordinate in 2 parameter style EC public
++ * key. Format is as defined in [COSE (RFC 8152)]
++ * (https://tools.ietf.org/html/rfc8152) and [SEC 1: Elliptic Curve
++ * Cryptography](http://www.secg.org/sec1-v2.pdf).
++ *
++ * This size is well-known and documented in public standards.
++ */
++#define T_COSE_CRYPTO_EC_P256_COORD_SIZE  32
++#define T_COSE_CRYPTO_SHA256_SIZE         32
++
++#define MAX_ENCODED_COSE_KEY_SIZE \
++    1 + /* 1 byte to encode map */ \
++    2 + /* 2 bytes to encode key type */ \
++    2 + /* 2 bytes to encode curve */ \
++    2 * /* the X and Y coordinates at 32 bytes each */ \
++        (T_COSE_CRYPTO_EC_P256_COORD_SIZE + 1 + 2)
++#define USEFUL_BUF_MAKE_STACK_UB UsefulBuf_MAKE_STACK_UB
++
++#define COSE_SIG_CONTEXT_STRING_SIGNATURE1 "Signature1"
++
++/* Private value. Intentionally not documented for Doxygen.
++ * This is the size allocated for the encoded protected headers.  It
++ * needs to be big enough for make_protected_header() to succeed. It
++ * currently sized for one header with an algorithm ID up to 32 bits
++ * long -- one byte for the wrapping map, one byte for the label, 5
++ * bytes for the ID. If this is made accidentially too small, QCBOR will
++ * only return an error, and not overrun any buffers.
++ *
++ * 9 extra bytes are added, rounding it up to 16 total, in case some
++ * other protected header is to be added.
++ */
++#define T_COSE_SIGN1_MAX_PROT_HEADER (1+1+5+9)
++
++/**
++ * This is the size of the first part of the CBOR encoded TBS
++ * bytes. It is around 20 bytes. See create_tbs_hash().
++ */
++#define T_COSE_SIZE_OF_TBS \
++    1 + /* For opening the array */ \
++    sizeof(COSE_SIG_CONTEXT_STRING_SIGNATURE1) + /* "Signature1" */ \
++    2 + /* Overhead for encoding string */ \
++    T_COSE_SIGN1_MAX_PROT_HEADER + /* entire protected headers */ \
++    3 * ( /* 3 NULL bstrs for fields not used */ \
++        1 /* size of a NULL bstr */  \
++    )
++
++/*
++ CBOR Label for proprietary header indicating short-circuit
++ signing was used. Just a random number in the proprietary
++ label space */
++#define T_COSE_SHORT_CIRCUIT_LABEL              (-8675309)
++
++#define EAT_CBOR_ARM_RANGE_BASE                 (-75000)
++#define EAT_CBOR_ARM_LABEL_PROFILE_DEFINITION   (EAT_CBOR_ARM_RANGE_BASE - 0)
++#define EAT_CBOR_ARM_LABEL_CLIENT_ID            (EAT_CBOR_ARM_RANGE_BASE - 1)
++#define EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE   (EAT_CBOR_ARM_RANGE_BASE - 2)
++#define EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID    (EAT_CBOR_ARM_RANGE_BASE - 3)
++#define EAT_CBOR_ARM_LABEL_BOOT_SEED            (EAT_CBOR_ARM_RANGE_BASE - 4)
++#define EAT_CBOR_ARM_LABEL_HW_VERSION           (EAT_CBOR_ARM_RANGE_BASE - 5)
++#define EAT_CBOR_ARM_LABEL_SW_COMPONENTS        (EAT_CBOR_ARM_RANGE_BASE - 6)
++#define EAT_CBOR_ARM_LABEL_NO_SW_COMPONENTS     (EAT_CBOR_ARM_RANGE_BASE - 7)
++#define EAT_CBOR_ARM_LABEL_NONCE                (EAT_CBOR_ARM_RANGE_BASE - 8)
++#define EAT_CBOR_ARM_LABEL_UEID                 (EAT_CBOR_ARM_RANGE_BASE - 9)
++#define EAT_CBOR_ARM_LABEL_ORIGINATION          (EAT_CBOR_ARM_RANGE_BASE - 10)
++
++#define CBOR_ARM_TOTAL_CLAIM_INSTANCE           10
++
++#define EAT_CBOR_SW_COMPONENT_TYPE              (1u)
++#define EAT_CBOR_SW_COMPONENT_MEASUREMENT       (2u)
++#define EAT_CBOR_SW_COMPONENT_EPOCH             (3u)
++#define EAT_CBOR_SW_COMPONENT_VERSION           (4u)
++#define EAT_CBOR_SW_COMPONENT_SIGNER_ID         (5u)
++#define EAT_CBOR_SW_COMPONENT_MEASUREMENT_DESC  (6u)
++
++#define MANDATORY_CLAIM_WITH_SW_COMP           (1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_NONCE)              |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_UEID)               |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID)  |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_CLIENT_ID)          |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE) |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_BOOT_SEED)          |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_SW_COMPONENTS))
++
++#define MANDATORY_CLAIM_NO_SW_COMP             (1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_NONCE)              |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_UEID)               |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_IMPLEMENTATION_ID)  |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_CLIENT_ID)          |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_SECURITY_LIFECYCLE) |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_BOOT_SEED)          |     \
++                                                1 << (EAT_CBOR_ARM_RANGE_BASE                      \
++                                                    - EAT_CBOR_ARM_LABEL_NO_SW_COMPONENTS))
++
++#define MANDATORY_SW_COMP                      (1 << EAT_CBOR_SW_COMPONENT_MEASUREMENT      |     \
++                                                1 << EAT_CBOR_SW_COMPONENT_SIGNER_ID)
++
++#define NULL_USEFUL_BUF_C  NULLUsefulBufC
++
++enum attestation_error_code {
++    PAL_ATTEST_SUCCESS = 0,
++    PAL_ATTEST_TOKEN_ERR_CBOR_FORMATTING = PAL_ATTEST_MIN_ERROR,
++    PAL_ATTEST_TOKEN_CHALLENGE_MISMATCH,
++    PAL_ATTEST_TOKEN_NOT_SUPPORTED,
++    PAL_ATTEST_TOKEN_NOT_ALL_MANDATORY_CLAIMS,
++    PAL_ATTEST_HASH_LENGTH_MISMATCH,
++    PAL_ATTEST_HASH_MISMATCH,
++    PAL_ATTEST_HASH_FAIL,
++    PAL_ATTEST_HASH_UNSUPPORTED,
++    PAL_ATTEST_HASH_BUFFER_SIZE,
++    PAL_ATTEST_ERR_PROTECTED_HEADERS,
++    PAL_ATTEST_ERR_SIGN_STRUCT,
++    PAL_ATTEST_ERROR,
++};
++
++struct items_to_get_t {
++    int64_t label;
++    QCBORItem item;
++};
++
++int32_t pal_initial_attest_verify_token(uint8_t *challenge, uint32_t challenge_size,
++                                        uint8_t *token, uint32_t token_size);
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_empty_intf.c b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_empty_intf.c
+new file mode 100644
+index 0000000..faf3f49
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_empty_intf.c
+@@ -0,0 +1,30 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include <stdarg.h>
++#include "pal_common.h"
++
++/**
++    @brief    - This API will call the requested attestation function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++int32_t pal_attestation_function(int type, va_list valist)
++{
++    return PAL_STATUS_ERROR;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.c b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.c
+new file mode 100644
+index 0000000..2d99f74
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.c
+@@ -0,0 +1,54 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++
++#include "pal_attestation_intf.h"
++
++/**
++    @brief    - This API will call the requested attestation function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++int32_t pal_attestation_function(int type, va_list valist)
++{
++    uint8_t     *challenge, *token;
++    uint32_t    challenge_size, *token_size, verify_token_size;
++
++    switch (type)
++    {
++        case PAL_INITIAL_ATTEST_GET_TOKEN:
++            challenge = va_arg(valist, uint8_t*);
++            challenge_size = va_arg(valist, uint32_t);
++            token = va_arg(valist, uint8_t*);
++            token_size = va_arg(valist, uint32_t*);
++            return psa_initial_attest_get_token(challenge, challenge_size, token, token_size);
++        case PAL_INITIAL_ATTEST_GET_TOKEN_SIZE:
++            challenge_size = va_arg(valist, uint32_t);
++            token_size = va_arg(valist, uint32_t*);
++            return psa_initial_attest_get_token_size(challenge_size, token_size);
++        case PAL_INITIAL_ATTEST_VERIFY_TOKEN:
++            challenge = va_arg(valist, uint8_t*);
++            challenge_size = va_arg(valist, uint32_t);
++            token = va_arg(valist, uint8_t*);
++            verify_token_size = va_arg(valist, uint32_t);
++            return pal_initial_attest_verify_token(challenge, challenge_size,
++                                                   token, verify_token_size);
++        default:
++            return PAL_STATUS_UNSUPPORTED_FUNC;
++    }
++}
+diff --git a/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.h b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.h
+new file mode 100644
+index 0000000..12f6ee9
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/initial_attestation/pal_attestation_intf.h
+@@ -0,0 +1,30 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_INITIAL_ATTESTATION_H_
++#define _PAL_INITIAL_ATTESTATION_H_
++
++#include "pal_attestation_crypto.h"
++
++enum attestation_function_code {
++    PAL_INITIAL_ATTEST_GET_TOKEN        = 0x1,
++    PAL_INITIAL_ATTEST_GET_TOKEN_SIZE   = 0x2,
++    PAL_INITIAL_ATTEST_VERIFY_TOKEN     = 0x3,
++};
++
++int32_t pal_attestation_function(int type, va_list valist);
++#endif /* _PAL_INITIAL_ATTESTATION_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_empty_intf.c b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_empty_intf.c
+new file mode 100644
+index 0000000..133cfa9
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_empty_intf.c
+@@ -0,0 +1,30 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include <stdarg.h>
++#include "pal_common.h"
++
++/**
++    @brief    - This API will call the requested internal trusted storage function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++uint32_t pal_its_function(int type, va_list valist)
++{
++    return PAL_STATUS_ERROR;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.c b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.c
+new file mode 100644
+index 0000000..4f04ab0
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.c
+@@ -0,0 +1,60 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++
++#include "pal_internal_trusted_storage_intf.h"
++
++/**
++    @brief    - This API will call the requested internal trusted storage function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++uint32_t pal_its_function(int type, va_list valist)
++{
++    psa_its_uid_t           uid;
++    uint32_t                data_length, offset;
++    const void              *p_write_data;
++    void                    *p_read_data;
++    psa_its_create_flags_t  its_create_flags;
++    struct psa_its_info_t   *its_p_info;
++
++    switch (type)
++    {
++    case PAL_ITS_SET:
++        uid = va_arg(valist, psa_its_uid_t);
++        data_length = va_arg(valist, uint32_t);
++        p_write_data = va_arg(valist, const void*);
++        its_create_flags = va_arg(valist, psa_its_create_flags_t);
++        return psa_its_set(uid, data_length, p_write_data, its_create_flags);
++    case PAL_ITS_GET:
++        uid = va_arg(valist, psa_its_uid_t);
++        offset = va_arg(valist, uint32_t);
++        data_length = va_arg(valist, uint32_t);
++        p_read_data = va_arg(valist, void*);
++        return psa_its_get(uid, offset, data_length, p_read_data);
++    case PAL_ITS_GET_INFO:
++        uid = va_arg(valist, psa_its_uid_t);
++        its_p_info = va_arg(valist, struct psa_its_info_t*);
++        return psa_its_get_info(uid, its_p_info);
++    case PAL_ITS_REMOVE:
++        uid = va_arg(valist, psa_its_uid_t);
++        return psa_its_remove(uid);
++    default:
++        return PAL_STATUS_UNSUPPORTED_FUNC;
++    }
++}
+diff --git a/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.h b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.h
+new file mode 100644
+index 0000000..6db6aac
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/internal_trusted_storage/pal_internal_trusted_storage_intf.h
+@@ -0,0 +1,31 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_
++#define _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_
++
++#include "pal_common.h"
++
++enum its_function_code {
++    PAL_ITS_SET                         = 0x1,
++    PAL_ITS_GET                         = 0x2,
++    PAL_ITS_GET_INFO                    = 0x3,
++    PAL_ITS_REMOVE                      = 0x4,
++};
++
++uint32_t pal_its_function(int type, va_list valist);
++#endif /* _PAL_INTERNAL_TRUSTED_STORAGE_INTF_H_ */
+diff --git a/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_empty_intf.c b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_empty_intf.c
+new file mode 100644
+index 0000000..ee9b13d
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_empty_intf.c
+@@ -0,0 +1,30 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#include <stdarg.h>
++#include "pal_common.h"
++
++/**
++    @brief    - This API will call the requested protected storage function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++uint32_t pal_ps_function(int type, va_list valist)
++{
++    return PAL_STATUS_ERROR;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.c b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.c
+new file mode 100644
+index 0000000..a424153
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.c
+@@ -0,0 +1,75 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++
++#include "pal_protected_storage_intf.h"
++
++/**
++    @brief    - This API will call the requested protected storage function
++    @param    - type    : function code
++                valist  : variable argument list
++    @return   - error status
++**/
++uint32_t pal_ps_function(int type, va_list valist)
++{
++    psa_ps_uid_t            uid;
++    uint32_t                data_length, size, offset;
++    const void              *p_write_data;
++    void                    *p_read_data;
++    psa_ps_create_flags_t   ps_create_flags;
++    struct psa_ps_info_t    *ps_p_info;
++
++    switch (type)
++    {
++     case PAL_PS_SET:
++         uid = va_arg(valist, psa_ps_uid_t);
++         data_length = va_arg(valist, uint32_t);
++         p_write_data = va_arg(valist, const void*);
++         ps_create_flags = va_arg(valist, psa_ps_create_flags_t);
++         return psa_ps_set(uid, data_length, p_write_data, ps_create_flags);
++     case PAL_PS_GET:
++         uid = va_arg(valist, psa_ps_uid_t);
++         offset = va_arg(valist, uint32_t);
++         data_length = va_arg(valist, uint32_t);
++         p_read_data = va_arg(valist, void*);
++         return psa_ps_get(uid, offset, data_length, p_read_data);
++     case PAL_PS_GET_INFO:
++         uid = va_arg(valist, psa_ps_uid_t);
++         ps_p_info = va_arg(valist, struct psa_ps_info_t*);
++         return psa_ps_get_info(uid, ps_p_info);
++     case PAL_PS_REMOVE:
++         uid = va_arg(valist, psa_ps_uid_t);
++         return psa_ps_remove(uid);
++     case PAL_PS_CREATE:
++         uid = va_arg(valist, psa_ps_uid_t);
++         size = va_arg(valist, uint32_t);
++         ps_create_flags = va_arg(valist, psa_ps_create_flags_t);
++         return psa_ps_create(uid, size, ps_create_flags);
++     case PAL_PS_SET_EXTENDED:
++         uid = va_arg(valist, psa_ps_uid_t);
++         offset = va_arg(valist, uint32_t);
++         data_length = va_arg(valist, uint32_t);
++         p_write_data = va_arg(valist, const void*);
++         return psa_ps_set_extended(uid, offset, data_length, p_write_data);
++     case PAL_PS_GET_SUPPORT:
++         return psa_ps_get_support();
++    default:
++        return PAL_STATUS_UNSUPPORTED_FUNC;
++    }
++
++    return PAL_STATUS_UNSUPPORTED_FUNC;
++}
+diff --git a/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.h b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.h
+new file mode 100644
+index 0000000..a338cdf
+--- /dev/null
++++ b/api-tests/platform/targets/linux/nspe/protected_storage/pal_protected_storage_intf.h
+@@ -0,0 +1,34 @@
++/** @file
++ * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++ * SPDX-License-Identifier : Apache-2.0
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *  http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++**/
++
++#ifndef _PAL_PROTECTED_STORAGE_INTF_H_
++#define _PAL_PROTECTED_STORAGE_INTF_H_
++
++#include "pal_common.h"
++
++enum ps_function_code {
++    PAL_PS_SET                          = 0x1,
++    PAL_PS_GET                          = 0x2,
++    PAL_PS_GET_INFO                     = 0x3,
++    PAL_PS_REMOVE                       = 0x4,
++    PAL_PS_CREATE                       = 0x5,
++    PAL_PS_SET_EXTENDED                 = 0x6,
++    PAL_PS_GET_SUPPORT                  = 0x7,
++};
++
++uint32_t pal_ps_function(int type, va_list valist);
++#endif /* _PAL_PROTECTED_STORAGE_INTF_H_ */
+diff --git a/api-tests/platform/targets/linux/spe/pal_driver_intf.c b/api-tests/platform/targets/linux/spe/pal_driver_intf.c
+new file mode 100644
+index 0000000..fd30783
+--- /dev/null
++++ b/api-tests/platform/targets/linux/spe/pal_driver_intf.c
+@@ -0,0 +1,132 @@
++ /** @file
++  * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++  * SPDX-License-Identifier : Apache-2.0
++  *
++  * Licensed under the Apache License, Version 2.0 (the "License");
++  * you may not use this file except in compliance with the License.
++  * You may obtain a copy of the License at
++  *
++  *  http://www.apache.org/licenses/LICENSE-2.0
++  *
++  * Unless required by applicable law or agreed to in writing, software
++  * distributed under the License is distributed on an "AS IS" BASIS,
++  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  * See the License for the specific language governing permissions and
++  * limitations under the License.
++ **/
++
++#include "pal_driver_intf.h"
++
++/**
++    @brief    - This function initializes the UART
++    @param    - uart base addr
++    @return   - void
++**/
++void pal_uart_init(uint32_t uart_base_addr)
++{
++    pal_uart_cmsdk_init(uart_base_addr);
++}
++
++/**
++    @brief    - This function parses the input string and writes bytes into UART TX FIFO
++    @param    - str      : Input String
++              - data     : Value for format specifier
++**/
++
++void pal_print(char *str, int32_t data)
++{
++  pal_cmsdk_print(str,data);
++
++}
++
++
++/**
++    @brief    - Writes into given non-volatile address.
++    @param    - base    : Base address of nvmem
++                offset  : Offset
++                buffer  : Pointer to source address
++                size    : Number of bytes
++    @return   - 1/0
++**/
++int pal_nvmem_write(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    return nvmem_write(base, offset, buffer, size);
++}
++
++/**
++    @brief    - Reads from given non-volatile address.
++    @param    - base    : Base address of nvmem
++                offset  : Offset
++                buffer  : Pointer to source address
++                size    : Number of bytes
++    @return   - 1/0
++**/
++int pal_nvmem_read(addr_t base, uint32_t offset, void *buffer, int size)
++{
++    return nvmem_read(base, offset, buffer, size);
++}
++
++
++/**
++    @brief           - Initializes an hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++                     - time_us         : Time in micro seconds
++                     - timer_tick_us   : Number of ticks per micro second
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_init(addr_t base_addr, uint32_t time_us, uint32_t timer_tick_us)
++{
++    return(pal_wd_cmsdk_init(base_addr,time_us, timer_tick_us));
++
++}
++
++/**
++    @brief           - Enables a hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_enable(addr_t base_addr)
++{
++    return(pal_wd_cmsdk_enable(base_addr));
++}
++
++/**
++    @brief           - Disables a hardware watchdog timer
++    @param           - base_addr       : Base address of the watchdog module
++    @return          - SUCCESS/FAILURE
++**/
++int pal_wd_timer_disable(addr_t base_addr)
++{
++    return (pal_wd_cmsdk_disable(base_addr));
++}
++
++/**
++    @brief           - Checks whether hardware watchdog timer is enabled
++    @param           - base_addr       : Base address of the watchdog module
++    @return          - Enabled : 1, Disabled : 0
++**/
++int pal_wd_timer_is_enabled(addr_t base_addr)
++{
++    return (pal_wd_cmsdk_is_enabled(base_addr));
++}
++
++/**
++    @brief   - Trigger interrupt for irq signal assigned to driver partition
++               before return to caller.
++    @param   - void
++    @return  - void
++**/
++void pal_generate_interrupt(void)
++{
++    pal_uart_cmsdk_generate_irq();
++}
++
++/**
++    @brief   - Disable interrupt that was generated using pal_generate_interrupt API.
++    @param   - void
++    @return  - void
++**/
++void pal_disable_interrupt(void)
++{
++    pal_uart_cmsdk_disable_irq();
++}
+diff --git a/api-tests/platform/targets/linux/spe/pal_driver_intf.h b/api-tests/platform/targets/linux/spe/pal_driver_intf.h
+new file mode 100644
+index 0000000..cef34ca
+--- /dev/null
++++ b/api-tests/platform/targets/linux/spe/pal_driver_intf.h
+@@ -0,0 +1,35 @@
++ /** @file
++  * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++  * SPDX-License-Identifier : Apache-2.0
++  *
++  * Licensed under the Apache License, Version 2.0 (the "License");
++  * you may not use this file except in compliance with the License.
++  * You may obtain a copy of the License at
++  *
++  *  http://www.apache.org/licenses/LICENSE-2.0
++  *
++  * Unless required by applicable law or agreed to in writing, software
++  * distributed under the License is distributed on an "AS IS" BASIS,
++  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  * See the License for the specific language governing permissions and
++  * limitations under the License.
++ **/
++
++#ifndef _PAL_DRIVER_INTF_H_
++#define _PAL_DRIVER_INTF_H_
++
++#include "pal_uart.h"
++#include "pal_nvmem.h"
++#include "pal_wd_cmsdk.h"
++
++void pal_uart_init(uint32_t uart_base_addr);
++void pal_print(char *str, int32_t data);
++int pal_nvmem_write(addr_t base, uint32_t offset, void *buffer, int size);
++int pal_nvmem_read(addr_t base, uint32_t offset, void *buffer, int size);
++int pal_wd_timer_init(addr_t base_addr, uint32_t time_us, uint32_t timer_tick_us);
++int pal_wd_timer_enable(addr_t base_addr);
++int pal_wd_timer_disable(addr_t base_addr);
++int pal_wd_timer_is_enabled(addr_t base_addr);
++void pal_generate_interrupt(void);
++void pal_disable_interrupt(void);
++#endif /* _PAL_DRIVER_INTF_H_ */
+diff --git a/api-tests/platform/targets/linux/target.cfg b/api-tests/platform/targets/linux/target.cfg
+new file mode 100644
+index 0000000..49ba7f2
+--- /dev/null
++++ b/api-tests/platform/targets/linux/target.cfg
+@@ -0,0 +1,57 @@
++///** @file
++// * Copyright (c) 2019, Arm Limited or its affiliates. All rights reserved.
++// * SPDX-License-Identifier : Apache-2.0
++// *
++// * Licensed under the Apache License, Version 2.0 (the "License");
++// * you may not use this file except in compliance with the License.
++// * You may obtain a copy of the License at
++// *
++// *  http://www.apache.org/licenses/LICENSE-2.0
++// *
++// * Unless required by applicable law or agreed to in writing, software
++// * distributed under the License is distributed on an "AS IS" BASIS,
++// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++// * See the License for the specific language governing permissions and
++// * limitations under the License.
++//**/
++
++// UART device info
++uart.num=1;
++uart.0.base = 0x40004000;
++uart.0.size = 0xFFF;
++uart.0.intr_id = 0xFF;
++uart.0.permission = TYPE_READ_WRITE;
++
++// Watchdog device info
++watchdog.num = 1;
++watchdog.0.base = 0x40008000;
++watchdog.0.size = 0xFFF;
++watchdog.0.intr_id = 0xFF;
++watchdog.0.permission = TYPE_READ_WRITE;
++watchdog.0.num_of_tick_per_micro_sec = 0x3;         //(sys_feq/1000000)
++watchdog.0.timeout_in_micro_sec_low = 0xF4240;      //1.0  sec :  1 * 1000 * 1000
++watchdog.0.timeout_in_micro_sec_medium = 0x1E8480;  //2.0  sec :  2 * 1000 * 1000
++watchdog.0.timeout_in_micro_sec_high = 0x4C4B40;    //5.0  sec :  5 * 1000 * 1000
++watchdog.0.timeout_in_micro_sec_crypto = 0x1312D00; //18.0 sec : 18 * 1000 * 1000
++
++// Range of 1KB Non-volatile memory to preserve data over reset. Ex, NVRAM and FLASH
++nvmem.num =1;
++nvmem.0.start = 0x0;
++nvmem.0.end = 0xFFF;
++nvmem.0.permission = TYPE_READ_WRITE;
++
++// Miscellaneous - Test scatter info
++dut.num = 1;
++
++// Start address of 12KB NS memory for test ELF
++dut.0.ns_test_addr = 0x2007F000;
++
++// Start address of combine_test_binary in memory. Memory can be main memory or secondary memory.
++// Size of combine_test_binary = Summation of size of each test ELF file.
++dut.0.ns_start_addr_of_combine_test_binary = 0x2003F000;
++
++// Is combine_test_binary available in RAM?
++dut.0.combine_test_binary_in_ram = AVAILABLE;
++
++// Level of Isolation
++dut.0.implemented_psa_firmware_isolation_level = LEVEL1;
+diff --git a/api-tests/tools/makefiles/Makefile b/api-tests/tools/makefiles/Makefile
+index 1aa790b..e6f3bce 100644
+--- a/api-tests/tools/makefiles/Makefile
++++ b/api-tests/tools/makefiles/Makefile
+@@ -25,28 +25,36 @@ export SUITE_OUT= $(BUILD)/$(SUITE_DIR)
+ 
+ include $(SOURCE)/tools/makefiles/toolchain.mk
+ 
++ifeq (${TEST_COMBINE_LINUX}, 1)
++export TEST_COMBINE_ARCHIVE= 1
++export NO_LINKER_SCRIPT= 1
++endif
++
++
++all: clean mkdir target_cfg gen_linker process_testsuite.db build
+ 
+-all: clean target_cfg gen_linker process_testsuite.db build
++mkdir:
++	mkdir -p $(BUILD)/platform/${TARGET} $(SUITE_OUT) $(BUILD)/val $(BUILD)/partition
+ 
+ #Generate target files from User provided data base
+ target_cfg:
+ 	@echo  ""
+ 	@echo  "Processing target configuration..."
+-	mkdir -p $(BUILD)/platform/${TARGET}/
+ 	@if [ ! -f "$(SOURCE)/platform/targets/$(TARGET)/target.cfg" ]; then { echo "Error: Target Not Found!!!"; exit 1; } fi
+ 	python $(SOURCE)/tools/scripts/targetConfigGen.py ${TARGET} $(SOURCE)/val/common/val_target.h \
+ 	$(SOURCE)/platform/targets/${TARGET}/target.cfg $(BUILD)/platform/${TARGET}/targetConfigGen.c \
+ 	$(BUILD)/platform/${TARGET}/target_database.h target_database ""
+ 	gcc -D__addr_t_defined -DTARGET_CFG_BUILD $(BUILD)/platform/${TARGET}/targetConfigGen.c -o $(BUILD)/platform/${TARGET}/targetConfigGen \
+ 	-I$(SOURCE)/val/nspe -I$(SOURCE)/val/common -I$(SOURCE)/platform/targets/${TARGET}/nspe/common
+-	./$(BUILD)/platform/${TARGET}/targetConfigGen
++	$(BUILD)/platform/${TARGET}/targetConfigGen
+ 
+ #Read target.cfg and update the addresses in linker script
+ gen_linker:
++ifneq (${NO_LINKER_SCRIPT}, 1)
+ 	@echo  ""
+ 	@echo  "Updating linker files..."
+-	mkdir -p $(SUITE_OUT)/ $(BUILD)/val/ $(BUILD)/partition/ ;
+ 	perl $(SOURCE)/tools/scripts/process_test_linker_file.pl $(SOURCE) $(SUITE_OUT) ${TARGET} $(TOOLCHAIN)
++endif
+ 
+ process_testsuite.db:
+ 	@echo  ""
+@@ -86,6 +94,11 @@ else
+ 	hexdump -v -e ' 1/4 "%08X" "\n"' $(SUITE_OUT)/test_elf_combine.bin > $(SUITE_OUT)/test_elf_combine.hex
+ 	@echo  "----------Combine NS test elfs into binary complete-------------"
+ endif
++ifeq (${TEST_COMBINE_LINUX}, 1)
++	@echo  "----------Combine NS test objects into Linux binary start-------------"
++	$(LD) -o $(SUITE_OUT)/psa-arch-$(SUITE)-tests -Wl,--no-as-needed $(SUITE_OUT)/test_combine.a $(BUILD)/val/val_nspe.a $(SUITE_OUT)/test_combine.a $(BUILD)/platform/pal_nspe.a -lmbedcrypto
++	@echo  "----------Combine NS test objects into Linux binary complete-------------"
++endif
+ 
+ test.elf:
+ 	@echo  ""
+@@ -114,6 +127,9 @@ ifeq (${TEST_COMBINE_ARCHIVE}, 1)
+ else
+ 	@echo  " $(SUITE_OUT)/test_elf_combine.bin"
+ endif
++ifeq (${TEST_COMBINE_LINUX}, 1)
++	@echo  " $(SUITE_OUT)/psa-arch-$(SUITE)-tests"
++endif
+ 	@echo  ""
+ ifeq (${PSA_IPC_IMPLEMENTED}, 1)
+ 	@echo  "b) SPE files"
+diff --git a/api-tests/tools/makefiles/testbuild.mk b/api-tests/tools/makefiles/testbuild.mk
+index 373111d..49869ea 100644
+--- a/api-tests/tools/makefiles/testbuild.mk
++++ b/api-tests/tools/makefiles/testbuild.mk
+@@ -69,10 +69,12 @@ $(SUITE_OUT)/$(TEST)/%_spe.o : %.s
+ 	$(AS) -o $@ $<
+ 
+ test.elf:
++ifneq (${TEST_COMBINE_LINUX}, 1)
+ ifeq (${TOOLCHAIN}, GNUARM)
+ 	$(LD) -Xlinker -Map=$(SUITE_OUT)/$(TEST)/test.map -o $(SUITE_OUT)/$(TEST)/test.elf -T$(SUITE_OUT)/.test.linker $(SUITE_OUT)/$(TEST)/*_nspe.o
+ else
+ 	$(LD)  --scatter=$(SUITE_OUT)/.test.sct  --list=$(SUITE_OUT)/$(TEST)/test.map -o $(SUITE_OUT)/$(TEST)/test.elf  $(SUITE_OUT)/$(TEST)/*_nspe.o
+ endif
+ 	$(DS)  $(SUITE_OUT)/$(TEST)/test.elf >  $(SUITE_OUT)/$(TEST)/test.disass
++endif
+ 
+diff --git a/api-tests/tools/makefiles/toolchain.mk b/api-tests/tools/makefiles/toolchain.mk
+index 699e6bb..ba0fb29 100644
+--- a/api-tests/tools/makefiles/toolchain.mk
++++ b/api-tests/tools/makefiles/toolchain.mk
+@@ -14,70 +14,75 @@
+ # * limitations under the License.
+ #**/
+ 
+-TOOLCHAIN=GNUARM
+-PREFIX=
+-
+-#### GNUARM OPTIONS - START ####
+-ifneq (,$(findstring $(TOOLCHAIN),GNUARM-GCC))
+-    ifeq (${TOOLCHAIN}, GNUARM)
+-    PREFIX=arm-none-eabi-
+-    endif
+-
+-    ifeq (${CPU_ARCH}, armv7m)
+-    TARGET_SWITCH= -march=armv7-m
+-    else
+-        ifeq (${CPU_ARCH}, armv8m_ml)
+-        TARGET_SWITCH= -march=armv8-m.main -mcmse
+-        else
+-        TARGET_SWITCH= -march=armv8-m.base -mcmse
+-        endif
+-    endif
+-
+-COMPILER= $(PREFIX)gcc
+-ASSEMBLER= $(PREFIX)as
+-AR= $(PREFIX)ar
+-LINKER= $(PREFIX)gcc
+-OBJDUMP=$(PREFIX)objdump
+-
+-COMPILER_OPTIONS= $(TARGET_SWITCH) -Wall -Werror -fdata-sections -ffunction-sections -mno-unaligned-access
+-
+-ASSEMBLER_OPTIONS= $(TARGET_SWITCH) -mthumb
+-AR_OPTIONS= -rcs
+-LINKER_OPTIONS= $(TARGET_SWITCH) -mthumb -Wall -Werror -O0 -fdata-sections \
+-				-ffunction-sections -Xlinker --fatal-warnings -Xlinker --gc-sections \
+-				-z max-page-size=0x400 -lgcc -lc -lnosys
+-OBJDUMP_OPTIONS= -d
+-endif #GNUARM-GCC
+-#### GNUARM OPTIONS - END ####
+-
+-#### ARMCLANG OPTIONS - START ####
+-ifeq (${TOOLCHAIN}, ARMCLANG)
+-
+-COMPILER= armclang
+-ASSEMBLER= armclang
+-AR= armar
+-LINKER= armlink
+-OBJDUMP=fromelf
+-
+-    ifeq (${CPU_ARCH}, armv7m)
+-    TARGET_SWITCH= -march=armv7-m
+-    TARGET_SWITCH_LD= --cpu=7-M
+-    else
+-        ifeq (${CPU_ARCH}, armv8m_ml)
+-        TARGET_SWITCH= -march=armv8-m.main -mcmse
+-        TARGET_SWITCH_LD= --cpu=8-M.Main
+-        else
+-        TARGET_SWITCH= -march=armv8-m.base -mcmse
+-        TARGET_SWITCH_LD= --cpu=8-M.Base
+-        endif
+-    endif
+-
+-COMPILER_OPTIONS= --target=arm-arm-none-eabi $(TARGET_SWITCH) -Wall -Werror -fshort-enums -fshort-wchar -funsigned-char -fdata-sections -ffunction-sections -mno-unaligned-access -mfpu=none
+-AR_OPTIONS= --create -cr
+-LINKER_OPTIONS= --strict --map --symbols --xref  --info=summarysizes,sizes,totals,unused,veneers --diag_warning=L6204
+-OBJDUMP_OPTIONS= -c -d --datasymbols
+-endif
+-#### ARMCLANG OPTIONS - END ####
++#TOOLCHAIN=GNUARM
++#PREFIX=
++#
++##### GNUARM OPTIONS - START ####
++#ifneq (,$(findstring $(TOOLCHAIN),GNUARM-GCC))
++#    ifeq (${TOOLCHAIN}, GNUARM)
++#    PREFIX=arm-none-eabi-
++#    endif
++#
++#    ifeq (${CPU_ARCH}, armv7m)
++#    TARGET_SWITCH= -march=armv7-m
++#    else
++#        ifeq (${CPU_ARCH}, armv8m_ml)
++#        TARGET_SWITCH= -march=armv8-m.main -mcmse
++#        else
++#        TARGET_SWITCH= -march=armv8-m.base -mcmse
++#        endif
++#    endif
++#
++#COMPILER= $(PREFIX)gcc
++#ASSEMBLER= $(PREFIX)as
++#AR= $(PREFIX)ar
++#LINKER= $(PREFIX)gcc
++#OBJDUMP=$(PREFIX)objdump
++#
++#COMPILER_OPTIONS= $(TARGET_SWITCH) -Wall -Werror -fdata-sections -ffunction-sections -mno-unaligned-access
++#
++#ASSEMBLER_OPTIONS= $(TARGET_SWITCH) -mthumb
++#AR_OPTIONS= -rcs
++#LINKER_OPTIONS= $(TARGET_SWITCH) -mthumb -Wall -Werror -O0 -fdata-sections \
++#				-ffunction-sections -Xlinker --fatal-warnings -Xlinker --gc-sections \
++#				-z max-page-size=0x400 -lgcc -lc -lnosys
++#OBJDUMP_OPTIONS= -d
++
++#endif #GNUARM-GCC
++##### GNUARM OPTIONS - END ####
++#
++##### ARMCLANG OPTIONS - START ####
++#ifeq (${TOOLCHAIN}, ARMCLANG)
++#
++#COMPILER= armclang
++#ASSEMBLER= armclang
++#AR= armar
++#LINKER= armlink
++#OBJDUMP=fromelf
++#
++#    ifeq (${CPU_ARCH}, armv7m)
++#    TARGET_SWITCH= -march=armv7-m
++#    TARGET_SWITCH_LD= --cpu=7-M
++#    else
++#        ifeq (${CPU_ARCH}, armv8m_ml)
++#        TARGET_SWITCH= -march=armv8-m.main -mcmse
++#        TARGET_SWITCH_LD= --cpu=8-M.Main
++#        else
++#        TARGET_SWITCH= -march=armv8-m.base -mcmse
++#        TARGET_SWITCH_LD= --cpu=8-M.Base
++#        endif
++#    endif
++#
++#COMPILER_OPTIONS= --target=arm-arm-none-eabi $(TARGET_SWITCH) -Wall -Werror -fshort-enums -fshort-wchar -funsigned-char -fdata-sections -ffunction-sections -mno-unaligned-access -mfpu=none
++#AR_OPTIONS= --create -cr
++#LINKER_OPTIONS= --strict --map --symbols --xref  --info=summarysizes,sizes,totals,unused,veneers --diag_warning=L6204
++#OBJDUMP_OPTIONS= -c -d --datasymbols
++#endif
++##### ARMCLANG OPTIONS - END ####
++
++COMPILER_OPTIONS += -O0 -Wall -Werror -fdata-sections -ffunction-sections -mno-unaligned-access -Wno-maybe-uninitialized
++AR_OPTIONS += -rcs
++LINKER_OPTIONS += -O0
+ 
+ COMPILER_OPTIONS += -DVERBOSE=$(VERBOSE)
+ 
+@@ -113,7 +118,13 @@ ifeq (${PSA_INITIAL_ATTESTATION_IMPLEMENTED}, 1)
+ COMPILER_OPTIONS += -DPSA_INITIAL_ATTESTATION_IMPLEMENTED=1
+ endif
+ 
+-CC= $(COMPILER) $(COMPILER_OPTIONS) $(CC_OPTIONS) $(USER_INCLUDE) $(INCLUDE)
+-AS= $(ASSEMBLER) $(ASSEMBLER_OPTIONS) $(AS_OPTIONS)
+-LD= $(LINKER) $(LINKER_OPTIONS)
+-DS= $(OBJDUMP) $(OBJDUMP_OPTIONS)
++#CC= $(COMPILER) $(COMPILER_OPTIONS) $(CC_OPTIONS) $(USER_INCLUDE) $(INCLUDE)
++#AS= $(ASSEMBLER) $(ASSEMBLER_OPTIONS) $(AS_OPTIONS)
++#LD= $(LINKER) $(LINKER_OPTIONS)
++#DS= $(OBJDUMP) $(OBJDUMP_OPTIONS)
++
++CC += $(COMPILER_OPTIONS) $(CFLAGS) $(CC_OPTIONS) $(USER_INCLUDE) $(INCLUDE)
++AS += $(ASSEMBLER_OPTIONS) $(ASFLAGS) $(AS_OPTIONS)
++LD = $(CC) $(LINKER_OPTIONS) $(LDFLAGS)
++DS += $(OBJDUMP_OPTIONS) $(DSFLAGS)
++
+diff --git a/api-tests/tools/makefiles/valbuild.mk b/api-tests/tools/makefiles/valbuild.mk
+index ef0ad4c..5539983 100644
+--- a/api-tests/tools/makefiles/valbuild.mk
++++ b/api-tests/tools/makefiles/valbuild.mk
+@@ -16,6 +16,16 @@
+ 
+ include $(SOURCE)/tools/makefiles/toolchain.mk
+ 
++ifeq (${TEST_COMBINE_LINUX}, 1)
++# If we're building a Linux binary, include a main() function
++VAL_LINUX_SRC_DIR= $(SOURCE)/val/linux/
++VAL_LINUX_SRC= main.c
++else
++VAL_LINUX_SRC_DIR=
++VAL_LINUX_SRC=
++endif
++
++
+ INCLUDE= -I$(SOURCE)/val/common/ \
+          -I$(SOURCE)/val/nspe/ \
+          -I$(SOURCE)/val/spe/ \
+@@ -27,10 +37,11 @@ INCLUDE= -I$(SOURCE)/val/common/ \
+ 
+ VPATH=$(SOURCE)/val/common/:\
+       $(SOURCE)/val/nspe/:\
+-      $(SOURCE)/val/spe/
++      $(SOURCE)/val/spe/:\
++      $(VAL_LINUX_SRC_DIR)
+ 
+ SRC_COMMON=
+-SRC_NS= val_entry.c val_dispatcher.c val_framework.c val_crypto.c val_interfaces.c val_peripherals.c val_target.c val_protected_storage.c val_internal_trusted_storage.c val_attestation.c
++SRC_NS= val_entry.c val_dispatcher.c val_framework.c val_crypto.c val_interfaces.c val_peripherals.c val_target.c val_protected_storage.c val_internal_trusted_storage.c val_attestation.c $(VAL_LINUX_SRC)
+ 
+ all: build
+ 
+diff --git a/api-tests/val/common/val_target.c b/api-tests/val/common/val_target.c
+index 3564c7d..e09c9a1 100644
+--- a/api-tests/val/common/val_target.c
++++ b/api-tests/val/common/val_target.c
+@@ -44,7 +44,7 @@ STATIC_DECLARE val_status_t val_target_cfg_get_next(void **blob)
+     if (*blob == NULL)
+     {
+         *blob = (void *) &target_database;
+-        if (blob == NULL)
++        if (*blob == NULL)
+         {
+             return VAL_STATUS_NOT_FOUND;
+         }
+diff --git a/api-tests/val/linux/main.c b/api-tests/val/linux/main.c
+new file mode 100644
+index 0000000..a8b20b4
+--- /dev/null
++++ b/api-tests/val/linux/main.c
+@@ -0,0 +1,6 @@
++#include "val_entry.h"
++
++int main(int argc, char**argv) {
++    val_entry();
++    return 0;
++}
+-- 
+2.7.4
+
