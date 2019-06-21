@@ -15,8 +15,7 @@ LIC_FILES_CHKSUM = " \
     "
 
 SRC_URI = "git://git@github.com/armmbed/mbl-psa.git;protocol=ssh;nobranch=1"
-//SRCREV = "9e665fdbced1d20667332534c42ed82106611d6b"
-SRCREV = "4e153cec86c19cddfc62f1031a4be7d78fc52436"
+SRCREV = "d3164717069dda755c23fdb3887129aeb471a623"
 
 PV = "1.0.0+git${SRCPV}"
 S = "${WORKDIR}/git"
