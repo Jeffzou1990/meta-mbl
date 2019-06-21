@@ -2,11 +2,10 @@
 #
 # SPDX-License-Identifier: MIT
 
-SUMMARY = "ARM Platform Security Architecture (PSA) Mbed Linux (MBL) Libary"
-#SECTION = "libs"
+SUMMARY = "ARM Platform Security Architecture (PSA) Protected Storage Library"
 DEPENDS = ""
-HOMEPAGE = "https://github.com/ARMmbed/mbl-psa"
-DESCRIPTION = ""
+HOMEPAGE = "https://github.com/ARMmbed/psa-storage"
+DESCRIPTION = "A Linux C library reference implementation of the PSA protected_storage.h API"
 
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = " \
@@ -14,8 +13,8 @@ LIC_FILES_CHKSUM = " \
     file://${WORKDIR}/git/apache-2.0.txt;md5=3b83ef96387f14655fc854ddc3c6bd57 \
     "
 
-SRC_URI = "git://git@github.com/armmbed/mbl-psa.git;protocol=ssh;nobranch=1"
-SRCREV = "d3164717069dda755c23fdb3887129aeb471a623"
+SRC_URI = "git://git@github.com/armmbed/psa-storage.git;protocol=ssh;nobranch=1"
+SRCREV = "a9fafad691f1017156149c5c2d60693a08f9b69a"
 
 PV = "1.0.0+git${SRCPV}"
 S = "${WORKDIR}/git"
@@ -28,8 +27,6 @@ FILES_${PN} = "${bindir}/ ${includedir}/ ${libdir}/"
 FILES_${PN}-dev = ""
 
 do_install_append() {
-    # todo: can the following line be made to work?
-    # oe_runmake install BINDIR=${D}/${bindir} LIBDIR=${D}/${libdir} INCLUDEDIR=${D}/${includedir}
     install -d ${D}${bindir}
     install -d ${D}${libdir}
     install -d ${D}${includedir}/psa
