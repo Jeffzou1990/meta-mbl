@@ -15,7 +15,8 @@ LIC_FILES_CHKSUM = " \
     "
 
 SRC_URI = "git://git@github.com/armmbed/mbl-psa.git;protocol=ssh;nobranch=1"
-SRCREV = "9e665fdbced1d20667332534c42ed82106611d6b"
+//SRCREV = "9e665fdbced1d20667332534c42ed82106611d6b"
+SRCREV = "4e153cec86c19cddfc62f1031a4be7d78fc52436"
 
 PV = "1.0.0+git${SRCPV}"
 S = "${WORKDIR}/git"
@@ -24,20 +25,19 @@ S = "${WORKDIR}/git"
 EXTRA_OEMAKE = "'CC=${CC}' 'RANLIB=${RANLIB}' 'AR=${AR}' 'CFLAGS=${CFLAGS}' 'BUILDDIR=${S}'"
 
 FILES_${PN} = "${bindir}/ ${includedir}/ ${libdir}/"
-# Work around libmblpsa.so.3 symlink error by not including files in dev package.
+# Work around libpsastorage.so.3 symlink error by not including files in dev package.
 FILES_${PN}-dev = ""
 
 do_install_append() {
-	# todo: can the following line be made to work?
-	# oe_runmake install BINDIR=${D}/${bindir} LIBDIR=${D}/${libdir} INCLUDEDIR=${D}/${includedir}
+    # todo: can the following line be made to work?
+    # oe_runmake install BINDIR=${D}/${bindir} LIBDIR=${D}/${libdir} INCLUDEDIR=${D}/${includedir}
     install -d ${D}${bindir}
     install -d ${D}${libdir}
     install -d ${D}${includedir}/psa
     install -m644 -t ${D}${includedir} ${B}/inc/*.h
     install -m644 -t ${D}${includedir}/psa ${B}/inc/psa/*.h
-	# todo: fix me: lib name should be libmblpsa not libmbedpsa
-    install -m755 -t ${D}${libdir} ${B}/lib/libmbedpsa*
-    install -m755 -t ${D}${bindir} ${B}/app/app
+    install -m755 -t ${D}${libdir} ${B}/lib/libpsa*
+    install -m755 -t ${D}${bindir} ${B}/app/psa-storage-example-app
 }
 
 PARALLEL_MAKE = ""
