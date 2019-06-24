@@ -30,7 +30,6 @@ do_install_append() {
     install -d ${D}${bindir}
     install -d ${D}${libdir}
     install -d ${D}${includedir}/psa
-    install -m644 -t ${D}${includedir} ${B}/inc/*.h
     install -m644 -t ${D}${includedir}/psa ${B}/inc/psa/*.h
     install -m755 -t ${D}${libdir} ${B}/lib/libpsa*
     install -m755 -t ${D}${bindir} ${B}/app/psa-storage-example-app
