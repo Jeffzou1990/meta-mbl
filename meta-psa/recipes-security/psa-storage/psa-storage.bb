@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM = " \
     "
 
 SRC_URI = "git://git@github.com/armmbed/psa-storage.git;protocol=ssh;nobranch=1"
-SRCREV = "3572fc55c8cc494bfeb442220f8a91542ed7bb99"
+SRCREV = "21fe5d5cab127a5d5b22b0c2c1d108e957b3b918"
 
 PV = "1.0.0+git${SRCPV}"
 S = "${WORKDIR}/git"
