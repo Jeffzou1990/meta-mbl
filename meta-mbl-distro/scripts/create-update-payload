@@ -44,12 +44,14 @@ TOPDIR is ./mbl-manifest/build-mbl-development or
 """
 
 import gzip
+import io
 import pathlib
 import re
 import shutil
 import sys
 import tarfile
 import tempfile
+import time
 import zipfile
 
 # Set the PYTHONPATH so we can import openembedded scripts/lib modules.
@@ -73,6 +75,7 @@ import argparse_oe
 
 import pdb
 MBL_BOOT_ID = "MBL_BOOT"
+PAYLOAD_FORMAT_VERSION = b"1"
 
 
 def parse_args():
@@ -242,6 +245,17 @@ def copy_to_staging_dir(filename_var_map, staging_dir, tinfoil=None):
             dst_dir = staging_dir
             copy_single_file_modifying_name(paths, var, dst_dir)
 
+def add_payload_format_version_to_tar_archive(tar):
+    buf = io.BytesIO(PAYLOAD_FORMAT_VERSION)
+    tar_info = tarfile.TarInfo(name="payload_format_version")
+    tar_info.size = len(buf.getvalue())
+    tar_info.mode = 0o444
+    tar_info.uid = 0
+    tar_info.gid = 0
+    tar_info.uname = "root"
+    tar_info.gname = "root"
+    tar_info.mtime = time.time()
+    tar.addfile(tar_info, buf)
 
 def create_tar_archive(tar_archive_name, dir_path, fname_var_map):
     """
@@ -270,6 +284,7 @@ def create_tar_archive(tar_archive_name, dir_path, fname_var_map):
             tar_file.add(str(fname), arcname=gzip_path.name)
 
     with tarfile.open(tar_archive_name, mode="w") as tar:
+        add_payload_format_version_to_tar_archive(tar)
         for arc_path in files_for_tar:
             tar.add(str(arc_path), arcname=arc_path.name)
 
