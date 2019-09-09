@@ -170,7 +170,7 @@ def match_filenames_to(bootloader_components, deploy_dir, tinfoil=None):
     value.
 
     :param bootloader_components list: List of bootloader components e.g [1, 2].
-    :param deploy_dir Path: path to IMAGE_DEPLOY_DIR.
+    :param deploy_dir Path: path to DEPLOY_DIR_IMAGE.
     :param tinfoil Tinfoil: bitbake tinfoil object.
     """
     output_map = {}
@@ -194,7 +194,7 @@ def match_files_for_boot_part(deploy_dir, tinfoil=None):
     Looks up the value of the IMAGE_BOOT_FILES bb variable.
     Returns a dict with MBL_BOOT as the key and a list of paths as the value.
 
-    :param deploy_dir Path: path to IMAGE_DEPLOY_DIR.
+    :param deploy_dir Path: path to DEPLOY_DIR_IMAGE.
     :param tinfoil Tinfoil: BitBake tinfoil object.
     """
     image_boot_files = get_bitbake_conf_var(
