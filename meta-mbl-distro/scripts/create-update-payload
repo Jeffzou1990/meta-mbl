@@ -89,7 +89,7 @@ def parse_args():
         " correspond to bootloader component 1.",
     )
     parser.add_argument(
-        "-f",
+        "-k",
         "--kernel",
         help=(
             "Prepare a payload containing the kernel image."
