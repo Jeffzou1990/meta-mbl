@@ -166,10 +166,11 @@ def match_filenames_to(bootloader_components, deploy_dir, tinfoil=None):
     Parse the bitbake config data using the tinfoil API and match the
     MBL_WKS_BOOTLOADER variable to a bootloader component.
 
-    Return a dict with the variable name as the key and the file name as the
+    Return a dict with the variable name as the key and the file path as the
     value.
 
-    :param bootloader_components list: List of bootloader components e.g [1, 2]
+    :param bootloader_components list: List of bootloader components e.g [1, 2].
+    :param deploy_dir Path: path to IMAGE_DEPLOY_DIR.
     :param tinfoil Tinfoil: bitbake tinfoil object.
     """
     output_map = {}
@@ -193,6 +194,7 @@ def match_files_for_boot_part(deploy_dir, tinfoil=None):
     Looks up the value of the IMAGE_BOOT_FILES bb variable.
     Returns a dict with MBL_BOOT as the key and a list of paths as the value.
 
+    :param deploy_dir Path: path to IMAGE_DEPLOY_DIR.
     :param tinfoil Tinfoil: BitBake tinfoil object.
     """
     image_boot_files = get_bitbake_conf_var(
@@ -210,6 +212,18 @@ def match_files_for_boot_part(deploy_dir, tinfoil=None):
 
 
 def copy_files_to_subdir(paths, dst_dir):
+    """
+    Copy files to a destination directory, renaming them when specified.
+
+    :param paths list<Path|tuple<Path, Path>>: a list of specifications of
+    files to copy to a destination directory. Each element can just be a
+    plain Path, in which case it is copied to the destination directory with
+    its existing filename; otherwise the element should be a 2-tuple of Paths
+    (src_path, dst_name) where src_path will be copied to dst_dir with the name
+    dst_name.
+
+    :param dst_dir Path: the directory into which files will be copied.
+    """
     for path in paths:
         if isinstance(path, tuple):
             src_path = path[0]
