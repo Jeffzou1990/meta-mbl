@@ -386,9 +386,9 @@ def get_payload_files_data(args, tinfoil):
                     "On this target the bootloader 1 component and kernel must be "
                     "updated together. Adding bootloader 1 component to payload..."
                 )
-            fname_var_map[MBL_BOOT_ID] = get_files_for_boot_part(
-                deploy_dir_img, tinfoil
-            )
+        fname_var_map[MBL_BOOT_ID] = get_files_for_boot_part(
+            deploy_dir_img, tinfoil
+        )
 
     return fname_var_map
 
