@@ -25,7 +25,6 @@ SRC_URI = "git://git@github.com/ARMmbed/linux-mbl.git;protocol=ssh;nobranch=1 \
            file://mqueue-mbl.cfg \
            file://cgroups-mbl.cfg \
            file://namespaces-mbl.cfg \
-           file://ecryptfs-mbl.cfg \
            file://watchdog-mbl.cfg \
            "
 SRC_URI_append_imx6ul-pico-mbl = " file://imx6ul-disable-cpu-idle-mbl.cfg"
