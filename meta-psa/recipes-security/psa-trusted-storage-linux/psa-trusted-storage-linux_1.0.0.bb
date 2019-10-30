@@ -24,6 +24,8 @@ S = "${WORKDIR}/git"
 
 FILES_${PN}-example = "${bindir}"
 
+RDEPENDS_${PN}-example += "${PN}"
+
 do_install () {
     oe_runmake install prefix=${D} bindir=${D}${bindir} libdir=${D}${libdir} includedir=${D}${includedir}
 }
