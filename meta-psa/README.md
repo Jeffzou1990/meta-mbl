@@ -60,7 +60,7 @@ The options enable support for the following kernel features:
 - **CONFIG_ECRYPT_FS_MESSAGING**: This option enables the /dev/ecryptfs entry for use by ecryptfsd and other userspace tools like OpenSSL.
 
 The kernel configuration is typically stored in a configuration fragment file (e.g. `ecryptfs.cfg`)
-and processed by the linux kernel recipe used to build the kernel. For example, if a Linux kernel recipe
+and processed by the Linux kernel recipe used to build the kernel. For example, if a Linux kernel recipe
 `/meta-vendor/recipes-kernel/linux/linux-vendor-soc.bb` builds the kernel, then the following
 `/meta-mydistro/recipes-kernel/linux/linux-vendor-soc.bbappend` could be used to apply
 `/meta-mydistro/recipes-kernel/linux/files/ecryptfs.cfg`:
