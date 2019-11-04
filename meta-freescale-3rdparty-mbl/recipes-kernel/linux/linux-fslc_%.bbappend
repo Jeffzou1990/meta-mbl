@@ -7,6 +7,7 @@
 # SPDX-License-Identifier: MIT
 
 inherit mbl-kernel-config
+require recipes-kernel/linux/linux-mbl.inc
 
 PV = "${LINUX_VERSION}+git${SRCPV}"
 LINUX_VERSION = "4.14.112"
