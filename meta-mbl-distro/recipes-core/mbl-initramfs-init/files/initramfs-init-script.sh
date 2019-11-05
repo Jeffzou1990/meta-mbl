@@ -23,49 +23,61 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev
 
-# We need to check whether we have an active console to call the exec with the stdout, stdin and stderr redirections.
-# For production images, u-boot sets the kernel console command line to "console=", hence there is no active console.
-if [ $(cat /sys/class/tty/console/active | wc -c) -gt 0 ]
-then
+# We need to check whether we have an active console to call the exec with
+# the stdout, stdin and stderr redirections.
+# For production images, u-boot sets the kernel console command line to
+# "console=", hence there is no active console.
+if [ "$(wc -c < /sys/class/tty/console/active)" -gt 0 ]; then
     exec </dev/console >/dev/console 2>/dev/console
 fi
 
 # Initialise the hardware watchdog and set the timeout. We need to do this
-# in the initramfs, as the watchdog needs to be started before switching to the rootfs.
+# in the initramfs, as the watchdog needs to be started before switching to
+# the rootfs.
 printf "Setting hardware watchdog with device filename %s to timeout of %s seconds\n" \
     "${MBL_WATCHDOG_DEVICE_FILENAME}" "${MBL_WATCHDOG_TIMEOUT_SECS}"
 mbl-watchdog-init --timeout ${MBL_WATCHDOG_TIMEOUT_SECS} --device ${MBL_WATCHDOG_DEVICE_FILENAME}
 
-echo "Booting from init script in initramfs"
+# Enforce that errors after setting up the watchdog will cause a kernel panic
+# Note: In production images we may not have a console so 'echo' commands
+# may fail, so make sure we ignore these failures using '|| true'
+set -e
+echo "Booting from init script in initramfs" || true
 
 # Workaround findfs failure on Raspberry Pi 3: unable to resolve 'LABEL=xxxx'
-# We need to wait until the kernel mmc driver is up and all storage partitions populated.
+# We need to wait until the kernel mmc driver is up and all storage partitions
+# populated.
 while ! findfs LABEL=${LOG_PARTITION_LABEL}>/dev/null 2>&1 ; do
     sleep 0.01
 done
 
-# The boot flags (which indicate which rootfs bank to use) are temporarily stored
-# in the log partition. Mount the log partition so we can check them.
+# The boot flags (which indicate which rootfs bank to use) are temporarily
+# stored in the log partition. Mount the log partition so we can check them.
 
 LOG_PARTITION="$(findfs "LABEL=${LOG_PARTITION_LABEL}")"
 mkdir -p "$LOG_MOUNT_POINT"
-mount -o "$LOG_MOUNT_OPTS" "$LOG_PARTITION" "$LOG_MOUNT_POINT"
+if [ "$(mount -o "$LOG_MOUNT_OPTS" "$LOG_PARTITION" "$LOG_MOUNT_POINT")" ]; then
+    # if we fail to mount, try to fix the partition and mount it again
+    e2fsck -p -c -f "$LOG_PARTITION"
+    mount -o "$LOG_MOUNT_OPTS" "$LOG_PARTITION" "$LOG_MOUNT_POINT"
+fi
 
 # Check for the existence of a flag file indicating that we should use the
 # second rootfs bank rather than the first.
 ROOTFS_LABEL="${ROOTFS_LABEL_BASE}2"
-if [ ! -f "${BOOTFLAGS_DIR}/${ROOTFS_LABEL}" ]
-then
+if [ ! -f "${BOOTFLAGS_DIR}/${ROOTFS_LABEL}" ]; then
     ROOTFS_LABEL="${ROOTFS_LABEL_BASE}1"
 fi
 
-
 ROOTFS_PARTITION="$(findfs LABEL=$ROOTFS_LABEL)"
 
-#Switch from initramfs to rootfs:
-
+# Switch from initramfs to rootfs
 mkdir -p /mnt/rootfs
-mount $ROOTFS_PARTITION /mnt/rootfs
+if [ "$(mount "$ROOTFS_PARTITION" /mnt/rootfs)" ]; then
+    # if we fail to mount, try to fix the partition and mount it again
+    e2fsck -p -c -f "$ROOTFS_PARTITION"
+    mount "$ROOTFS_PARTITION" /mnt/rootfs
+fi
 
 mount --move /dev /mnt/rootfs/dev
 mount --move /proc /mnt/rootfs/proc
@@ -73,8 +85,7 @@ mount --move /sys /mnt/rootfs/sys
 mount --move "$LOG_MOUNT_POINT" "/mnt/rootfs${LOG_MOUNT_POINT}"
 cd /mnt/rootfs
 
-echo "Switching to $ROOTFS_PARTITION"
+echo "Switching to $ROOTFS_PARTITION" || true
 
-#Switch to the new filesystem, and run /sbin/init out of it
+# Switch to the new filesystem, and run /sbin/init out of it
 exec switch_root -c /dev/console /mnt/rootfs /sbin/init
-
