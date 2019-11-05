@@ -3,10 +3,16 @@
 # SPDX-License-Identifier: MIT
 
 SUMMARY = "ARM Platform Security Architecture (PSA) Protected Storage Library"
-DEPENDS = ""
 HOMEPAGE = "https://github.com/ARMmbed/psa_trusted_storage_linux.git"
 DESCRIPTION = "A Linux C library reference implementation of the PSA protected_storage.h API"
 SECTION = "libs"
+
+DEPENDS = ""
+RDEPENDS_${PN}-test += "${PN}"
+RDEPENDS_${PN} = "\
+    ecryptfs-utils \
+    keyutils \
+    "
 
 inherit systemd
 
@@ -22,7 +28,6 @@ SRC_URI = " \
     file://psa-ecryptfs-init.sh \
     "
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRCREV = "2be73f8a50eca10b45f952798e2100afd00a99f2"
 
 PACKAGES =+ "${PN}-test"
@@ -30,26 +35,17 @@ PACKAGES =+ "${PN}-test"
 PV .= "+git${SRCPV}"
 S = "${WORKDIR}/git"
 
-FILES_${PN}-test = "${bindir}"
-
-RDEPENDS_${PN}-test += "${PN}"
+FILES_${PN} += "${bindir}/psa-ecryptfs-init.sh"
+FILES_${PN}-test = "${bindir}/psa-storage-example-app"
 
 do_install () {
     oe_runmake install prefix=${D} bindir=${D}${bindir} libdir=${D}${libdir} includedir=${D}${includedir}
-}
 
-RDEPENDS_${PN} = "\
-    ecryptfs-utils \
-    keyutils \
-"
-
-SYSTEMD_PACKAGES = "${PN}"
-SYSTEMD_SERVICE_${PN} = "psa-ecryptfs.service"
-
-do_install_append() {
- 
     if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
         install -D -m 0644 ${WORKDIR}/psa-ecryptfs.service ${D}${systemd_system_unitdir}/psa-ecryptfs.service
         install -D -m 0755 ${WORKDIR}/psa-ecryptfs-init.sh ${D}${bindir}/psa-ecryptfs-init.sh
     fi
 }
+
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "psa-ecryptfs.service"
