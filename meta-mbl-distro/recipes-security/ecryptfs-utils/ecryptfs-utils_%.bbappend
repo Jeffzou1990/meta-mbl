@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 # Disable systemd integration.
-SYSTEMD_PACKAGES = ""
+SYSTEMD_AUTO_ENABLE = "disable"
 SYSTEMD_SERVICE_${PN} = ""
 
 do_install_append() {
