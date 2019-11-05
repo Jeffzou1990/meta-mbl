@@ -3,12 +3,4 @@
 # SPDX-License-Identifier: MIT
 
 # Disable systemd integration.
-SYSTEMD_PACKAGES = ""
-SYSTEMD_SERVICE_${PN} = ""
-
-do_install_append() {
-
-    if ${@bb.utils.contains('DISTRO_FEATURES','systemd','true','false',d)}; then
-        rm -fR ${D}/${nonarch_base_libdir}/systemd
-    fi
-}
+SYSTEMD_AUTO_ENABLE = "disable"
