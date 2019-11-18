@@ -51,7 +51,7 @@ do_compile_append_stm32mp1-dk2-mbl() {
     cp dts/dt.dtb ${UBOOT_DTB_BINARY}
 }
 
-# DCD_FILE_PATH_imx7s-warp-mbl = "${B}"
+# DCD_FILE_PATH_stm32mp1-dk2-mbl = "${B}"
 
 do_deploy_append() {
 	install -D -p -m 0644 ${DCD_FILE_PATH}/u-boot-dtb.cfgout ${DEPLOYDIR}
