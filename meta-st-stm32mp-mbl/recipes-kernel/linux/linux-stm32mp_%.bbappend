@@ -11,11 +11,11 @@ LINUX_VERSION = "4.19.49"
 # but need now. We should remove this variable when we move to any
 # revision that rpi-4.19.y has. That means we move to 4.19 kernel.
 # And we can go further to openbedded-core commit at 324f9c818115.
-LINUX_RPI_BRANCH = "stm32mp-4.19.y"
+#LINUX_RPI_BRANCH = "stm32mp-4.19.y"
 
-SRCREV = "83b36f98e1a48d143f0b466fcf9f8c4e382c9a1c"
+#SRCREV = "83b36f98e1a48d143f0b466fcf9f8c4e382c9a1c"
 
-FILESEXTRAPATHS_prepend:="${THISDIR}/files:${THISDIR}/linux-raspberrypi:"
+FILESEXTRAPATHS_prepend:="${THISDIR}/files:${THISDIR}/linux-st-stm32mp1-dk2-mbl:"
 
 SRC_URI += "file://*-mbl.cfg \
 "
