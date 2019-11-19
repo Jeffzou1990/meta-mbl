@@ -9,7 +9,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/u-boot:"
 #SRC_URI = "git://git.denx.de/u-boot.git;protocol=https;nobranch=1"
 
 SRC_URI_append_stm32mp1-dk2-mbl = " \
-	
+     file://0001-stm32.patch \
      "
 
 do_configure_prepend_stm32mp1-dk2-mbl() {
