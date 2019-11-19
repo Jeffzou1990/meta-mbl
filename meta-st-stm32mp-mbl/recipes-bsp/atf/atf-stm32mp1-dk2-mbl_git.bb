@@ -13,19 +13,30 @@ require recipes-bsp/atf/atf.inc
 # - The recipe imports mbedtls into the ATF build directory to build libmbedtls.a
 #   and incorporated into the firmware.
 ##DEPENDS += "arm-aarch64-toolchain-native"
+                                  "
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/atf-stm32mp1-dk2-mbl:"
-SRC_URI_append_stm32mp1-dk2-mbl = " file://0001-rpi3-Use-mmc-driver-to-load-FIP-from-raw-sectors.patch \
-				file://0002-rpi3-use-external-FIP-offset-definition.patch \
-"
-
-PLATFORM = "st-stm32mp"
+PLATFORM = "stm32mp1"
 
 ATF_COMPILE_FLAGS += " \
-      CROSS_COMPILE=aarch64-linux-gnu- \
-      RPI3_BL33_IN_AARCH32=1 \
-      NEED_BL32=yes \
-      SPD=opteed \
-      RPI3_PRELOADED_DTB_BASE=0x03000000 \
+      AARCH32_SP=optee \
+      ARCH=aarch32 \
+      ARM_ARCH_MAJOR=7 \
+      ARM_CORTEX_A7=yes \
+      CROSS_COMPILE=${TARGET_PREFIX} \
+      NEED_BL2=yes \
       fip \
 "
+do_compile_append() {
+	# Get the entry point
+	ENTRY=`${HOST_PREFIX}readelf ${B}/${PLATFORM}/bl2/bl2.elf -h | grep "Entry" | awk '{print $4}'`
+
+	# Generate the .imx binary
+	uboot-mkimage -n ${DEPLOY_DIR_IMAGE}/u-boot-dtb.cfgout -T imximage -e ${ENTRY} -d ${B}/${PLATFORM}/${MBL_BL2_FILENAME} ${B}/${PLATFORM}/${MBL_UNIFIED_BIN}
+
+	# Create signed FIP image.
+	oe_runmake ${ATF_COMPILE_FLAGS} BL2=${B}/${PLATFORM}/${MBL_BL2_FILENAME} BL2_AT_EL3=0 fip
+}
+
+do_deploy_append() {
+	install -D -p -m 0644 ${B}/${PLATFORM}/${FIP_BIN} ${DEPLOYDIR}
+}
