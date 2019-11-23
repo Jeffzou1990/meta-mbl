@@ -6,7 +6,9 @@ inherit mbl-uboot-sign
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/u-boot:"
 
-#SRC_URI = "git://git.denx.de/u-boot.git;protocol=https;nobranch=1"
+SRCREV = "a1588ac8228881f9fe65539fa8e31f0ee3556864"
+
+SRC_URI = "git://git.denx.de/u-boot.git;protocol=https;nobranch=1"
 
 SRC_URI_append_stm32mp1-dk2-mbl = " \
      file://0001-stm32.patch \
